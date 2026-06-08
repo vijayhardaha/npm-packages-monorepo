@@ -1,0 +1,57 @@
+{
+  "name": "npm-packages-monorepo",
+  "version": "1.0.0",
+  "description": "Monorepo for publishing npm packages — TypeScript tools and utilities",
+  "scripts": {
+    "build": "bun run --filter '*' build",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write --log-level error .",
+    "format:check": "prettier --check --log-level error .",
+    "tsc": "tsc --noEmit",
+    "test": "bun run --filter '*' test",
+    "test:coverage": "bun run --filter '*' test:coverage",
+    "prepare": "husky"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "Vijay Hardaha",
+    "url": "https://github.com/vijayhardaha"
+  },
+  "homepage": "https://github.com/vijayhardaha/npm-packages-monorepo#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vijayhardaha/npm-packages-monorepo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vijayhardaha/npm-packages-monorepo/issues"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "@commitlint/types": "^21.0.1",
+    "@eslint/compat": "^2.1.0",
+    "@prettier/plugin-xml": "^3.4.2",
+    "@typescript-eslint/eslint-plugin": "^8.60.1",
+    "@typescript-eslint/parser": "^8.60.1",
+    "@vijayhardaha/dev-config": "^2.1.0",
+    "@vitest/coverage-v8": "^4.1.8",
+    "eslint": "^10.4.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import-x": "^4.16.2",
+    "eslint-plugin-jsdoc": "^63.0.2",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.8.3",
+    "release-it": "^20.2.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.1",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8"
+  }
+}
