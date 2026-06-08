@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] — 2026-06-08
+
+### Added
+
+- **New helper functions extracted from `loadSourceFiles()`**: `resolveIncludeGlobs`, `validateNoJsFiles`, `buildExcludedSet`, `resolveGitignoreSearchDirs`, `walkUpForGitignore`, `findGitignorePatterns`, `filterSourceFiles` — each function now has a single responsibility.
+- **New helper functions extracted from `annotate()`**: `resolveTsconfigPath`, `findTsconfigByWalkingUp`, `walkUpForTsconfig`, `findTsconfigInSubdirectories` — tsconfig discovery logic is now independently testable.
+- 13 additional unit tests covering tsconfig discovery (walk-up from include dirs, CWD subdirectory scan), exclude patterns, complex return types (`Promise<User[]>`, `Record<string, number>`), and edge cases (errors, non-Error thrown values).
+- 8 additional unit tests for formatters (`printErrors`, `printVerbose`, `printNormal`, `printSummary`, `printDryRun` with annotations, `printDryRun` with none, `printResults` quiet/verbose/normal).
+- Fall-ignore comments for edge-case fallback paths.
+
+### Changed
+
+- **Major internal refactoring**: `loadSourceFiles()` reduced from 78 lines to 8 lines (orchestrator only); `annotate()` reduced from 89 lines to 33 lines.
+- **`resolveTsconfigPath`** now returns `string | null` directly instead of a wrapper object.
+- **`walkUpForGitignore`** simplified to return `string[]` instead of `{ patterns: string[]; found: boolean }`.
+- **Health score improved from 76 (B) to 86 (A)** — 0 large functions and 0 high-complexity functions above threshold (was 9).
+- **Documentation updated**: AGENTS.md reflects new code structure and health status; README.md clarifies programmatic API vs CLI-only options.
+- **Package URLs** updated from standalone repo paths to monorepo paths.
+- **Test file imports** cleaned up (removed unused `realpathSync` and `resolve`).
+
 ## [1.0.1] — 2026-05-31
 
 ### Added
