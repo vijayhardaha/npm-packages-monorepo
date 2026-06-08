@@ -1,0 +1,47 @@
+// =======================================================================
+// Typescript Configuration (Root)
+// =======================================================================
+// Purpose: Base type-checking configuration for the npm-packages monorepo.
+//          Individual packages extend this config with their own overrides.
+// Docs:    https://www.typescriptlang.org/tsconfig
+// =======================================================================
+
+{
+  "extends": "@vijayhardaha/dev-config/tsconfig",
+  "compilerOptions": {
+    // ----------------------------------------------------------------------
+    // Module resolution
+    // ----------------------------------------------------------------------
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true
+  },
+
+  // ---- Includes ----
+  // Config files at root and all source files across packages
+  "include": [
+    "*.config.mjs",
+    "*.config.ts",
+    "*.d.ts",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.mjs",
+    "**/*.cjs"
+  ],
+
+  // ---- Excludes ----
+  "exclude": [
+    "node_modules",
+    "**/dist",
+    "**/build",
+    "**/coverage",
+    "**/.next",
+    "**/.turbo",
+    "**/.vite",
+    "**/.cache",
+    "**/out"
+  ]
+}
