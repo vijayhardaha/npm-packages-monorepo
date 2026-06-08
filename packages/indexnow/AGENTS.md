@@ -60,15 +60,15 @@ CLI args (commander)
 
 ## CLI Options
 
-| Option                 | Description                                         |
-| ---------------------- | --------------------------------------------------- |
-| `--site-url <url>`     | Site URL (overrides next-sitemap.config value)      |
-| `--key <key>`          | IndexNow API key (falls back to INDEXNOW_KEY env)   |
-| `--sitemap <path>`     | Path to sitemap XML file                            |
-| `--chunk-size <number>`| URLs per submission batch (default: 100)            |
-| `-d, --dry-run`        | Preview URLs without submitting                     |
-| `-h, --help`           | Show help                                           |
-| `--version`            | Show version                                        |
+| Option                  | Description                                       |
+| ----------------------- | ------------------------------------------------- |
+| `--site-url <url>`      | Site URL (overrides next-sitemap.config value)    |
+| `--key <key>`           | IndexNow API key (falls back to INDEXNOW_KEY env) |
+| `--sitemap <path>`      | Path to sitemap XML file                          |
+| `--chunk-size <number>` | URLs per submission batch (default: 100)          |
+| `-d, --dry-run`         | Preview URLs without submitting                   |
+| `-h, --help`            | Show help                                         |
+| `--version`             | Show version                                      |
 
 ## Validation Checks
 
