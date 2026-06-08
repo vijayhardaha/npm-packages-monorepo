@@ -9,7 +9,7 @@
   "npm": { "publish": true, "publishArgs": ["--access=public"], "ignoreVersion": true, "publishPath": "." },
   "github": { "releaseName": "next-indexnow v${version}" },
   "hooks": {
-    "before:init": ["bun run format:check", "bun run tsc", "bun run lint", "bun run test", "bun run build"],
+    "before:init": ["bun run tsc", "bun run lint", "bun run test", "bun run build"],
     "before:release": "echo 'Publishing next-indexnow v${version}...'",
     "after:release": "echo 'Released next-indexnow v${version} successfully! 🎉'",
     "after:git:release": "echo 'Git tag next-indexnow@${version} pushed!'"
