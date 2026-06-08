@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/release-it@19.2.4/schema/release-it.json",
+  "git": {
+    "requireCleanWorkingDir": true,
+    "commitMessage": "build(release): bump next-indexnow to ${version}",
+    "tagAnnotation": "next-indexnow@${version}",
+    "tagName": "next-indexnow@${version}"
+  },
+  "npm": { "publish": true, "publishArgs": ["--access=public"], "ignoreVersion": true },
+  "github": { "releaseName": "next-indexnow v${version}" },
+  "hooks": {
+    "before:init": ["bun run format:check", "bun run tsc", "bun run lint", "bun run test", "bun run build"],
+    "before:release": "echo 'Publishing next-indexnow v${version}...'",
+    "after:release": "echo 'Released next-indexnow v${version} successfully! 🎉'",
+    "after:git:release": "echo 'Git tag next-indexnow@${version} pushed!'"
+  }
+}

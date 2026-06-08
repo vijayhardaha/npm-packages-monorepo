@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/release-it@19.2.4/schema/release-it.json",
+  "git": {
+    "requireCleanWorkingDir": true,
+    "commitMessage": "build(release): bump annotate-returns to ${version}",
+    "tagAnnotation": "annotate-returns@${version}",
+    "tagName": "annotate-returns@${version}"
+  },
+  "npm": { "publish": true, "publishArgs": ["--access=public"], "ignoreVersion": true },
+  "github": { "releaseName": "annotate-returns v${version}" },
+  "hooks": {
+    "before:init": ["bun run format:check", "bun run tsc", "bun run lint", "bun run test", "bun run build"],
+    "before:release": "echo 'Publishing annotate-returns v${version}...'",
+    "after:release": "echo 'Released annotate-returns v${version} successfully! 🎉'",
+    "after:git:release": "echo 'Git tag annotate-returns@${version} pushed!'"
+  }
+}

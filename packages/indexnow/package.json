@@ -1,0 +1,63 @@
+{
+  "name": "@vijayhardaha/next-indexnow",
+  "version": "0.0.1",
+  "description": "CLI tool to submit Next.js sitemaps to the IndexNow API for faster search engine indexing",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write --log-level error .",
+    "format:check": "prettier --check --log-level error .",
+    "release": "release-it",
+    "release:dry": "release-it --dry-run",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "type": "module",
+  "bin": {
+    "next-indexnow": "dist/cli.js"
+  },
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "indexnow",
+    "sitemap",
+    "seo",
+    "nextjs",
+    "cli"
+  ],
+  "author": {
+    "name": "Vijay Hardaha",
+    "url": "https://github.com/vijayhardaha"
+  },
+  "homepage": "https://github.com/vijayhardaha/npm-packages-monorepo/tree/master/packages/indexnow#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vijayhardaha/npm-packages-monorepo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vijayhardaha/npm-packages-monorepo/issues"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^15.0.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@types/xml2js": "^0.4.14"
+  }
+}
