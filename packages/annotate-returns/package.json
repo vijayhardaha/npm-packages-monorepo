@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write --log-level error .",
-    "format:check": "prettier --check --log-level error .",
+    "format:check": "prettier --check .",
     "release": "release-it",
     "release:dry": "release-it --dry-run",
     "test": "vitest run",
