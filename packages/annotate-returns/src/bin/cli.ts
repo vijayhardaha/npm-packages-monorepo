@@ -21,7 +21,7 @@
  */
 
 import { readFileSync, existsSync } from 'node:fs';
-import { resolve, join, dirname } from 'node:path';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import chalk from 'chalk';
@@ -30,7 +30,7 @@ import logSymbols from 'log-symbols';
 import ora from 'ora';
 
 import { formatJson, printDryRun, printResults } from '../formatters.ts';
-import { annotate } from '../index.ts';
+import { annotate, resolveTsconfigPath } from '../index.ts';
 import type { AnnotateResult } from '../types.ts';
 
 // ── ASCII Banner ───────────────────────────────────────────────────────
@@ -206,24 +206,15 @@ export async function main(): Promise<void> {
     console.log(SEPARATOR);
     console.log('');
 
-    // 2. Tsconfig check — walk up from CWD for default path to match library resolution
-    const tsconfigPath = resolve(opts.tsconfig);
-    let tsconfigExists = existsSync(tsconfigPath);
-    if (!tsconfigExists && opts.tsconfig === 'tsconfig.json') {
-      let dir = process.cwd();
-      while (true) {
-        const candidate = join(dir, 'tsconfig.json');
-        if (existsSync(candidate)) {
-          tsconfigExists = true;
-          break;
-        }
-        const parent = dirname(dir);
-        if (parent === dir) break;
-        dir = parent;
-      }
-    }
-    if (tsconfigExists) {
-      checkMark(true, 'tsconfig found', opts.tsconfig);
+    // 2. Tsconfig check — use library's resolveTsconfigPath for discovery (walk-up, subdirectory scan)
+    const userProvidedInclude = include.length > 0;
+    const resolvedConfig = resolveTsconfigPath(
+      opts.tsconfig,
+      userProvidedInclude ? include : ['**/*.ts', '**/*.tsx'],
+      userProvidedInclude
+    );
+    if (resolvedConfig) {
+      checkMark(true, 'tsconfig found', resolvedConfig);
     } else {
       checkMark(false, 'tsconfig not found', opts.tsconfig);
     }

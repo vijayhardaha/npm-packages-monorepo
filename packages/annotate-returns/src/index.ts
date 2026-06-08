@@ -580,7 +580,7 @@ function findTsconfigInSubdirectories(): string | null {
  *
  * @returns {string | null} Resolved absolute tsconfig path, or null if not found.
  */
-function resolveTsconfigPath(tsconfig: string, include: string[], userProvidedInclude: boolean): string | null {
+export function resolveTsconfigPath(tsconfig: string, include: string[], userProvidedInclude: boolean): string | null {
   const tsconfigPath = resolve(tsconfig);
 
   if (existsSync(tsconfigPath)) {
