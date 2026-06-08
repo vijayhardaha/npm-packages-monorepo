@@ -78,14 +78,14 @@ console.log(`Would update ${result.filesUpdated} files`);
 
 #### `AnnotateOptions`
 
-| Option     | Type       | Default                           | Description                                     |
-| ---------- | ---------- | --------------------------------- | ----------------------------------------------- |
-| `tsconfig` | `string`   | `"tsconfig.json"`                 | Path to tsconfig                                |
-| `include`  | `string[]` | `["**/*.ts", "**/*.tsx"]`        | Include patterns                                |
-| `exclude`  | `string[]` | `[]`                              | Exclude patterns                                |
-| `dryRun`   | `boolean`  | `false`                           | Preview without writing                         |
-| `check`    | `boolean`  | `false`                           | Exit with code 1 if annotations found           |
-| `backup`   | `boolean`  | `false`                           | Create `.bak` copies before modifying           |
+| Option     | Type       | Default                   | Description                           |
+| ---------- | ---------- | ------------------------- | ------------------------------------- |
+| `tsconfig` | `string`   | `"tsconfig.json"`         | Path to tsconfig                      |
+| `include`  | `string[]` | `["**/*.ts", "**/*.tsx"]` | Include patterns                      |
+| `exclude`  | `string[]` | `[]`                      | Exclude patterns                      |
+| `dryRun`   | `boolean`  | `false`                   | Preview without writing               |
+| `check`    | `boolean`  | `false`                   | Exit with code 1 if annotations found |
+| `backup`   | `boolean`  | `false`                   | Create `.bak` copies before modifying |
 
 #### `AnnotateResult`
 
