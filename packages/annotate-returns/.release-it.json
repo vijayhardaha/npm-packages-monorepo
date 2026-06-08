@@ -6,7 +6,7 @@
     "tagAnnotation": "annotate-returns@${version}",
     "tagName": "annotate-returns@${version}"
   },
-  "npm": { "publish": true, "publishArgs": ["--access=public"], "ignoreVersion": true },
+  "npm": { "publish": true, "publishArgs": ["--access=public"], "ignoreVersion": true, "publishPath": "." },
   "github": { "releaseName": "annotate-returns v${version}" },
   "hooks": {
     "before:init": ["bun run format:check", "bun run tsc", "bun run lint", "bun run test", "bun run build"],
