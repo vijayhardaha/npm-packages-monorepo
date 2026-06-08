@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] — 2026-06-08
+
+### Added
+
+- **Exported `resolveTsconfigPath`** from the core library so the CLI can reuse the same tsconfig discovery logic (walk-up from include directories, subdirectory scan for monorepo layouts).
+
+### Changed
+
+- **CLI tsconfig check now uses library's `resolveTsconfigPath`**: Replaced the CLI's own basic `existsSync` + CWD-only walk-up with the full discovery logic from the library. When tsconfig is found via walk-up or subdirectory scan, the checkmark now shows the **actual resolved path** (e.g., `/Users/user/project/packages/app/tsconfig.json`) instead of always showing the user-provided value.
+
+### Fixed
+
+- **False `✖ tsconfig not found` error**: When tsconfig was discoverable via walk-up or subdirectory scan but not at the specified path, the CLI incorrectly showed an error. Now uses the library's full discovery before reporting failure.
+
 ## [1.1.1] — 2026-06-08
 
 ### Added
