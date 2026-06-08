@@ -47,12 +47,24 @@ const SEPARATOR = chalk.dim('='.repeat(71));
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
+/**
+ * Print a checkmark or error icon with a status label and optional detail.
+ *
+ * @param {boolean} valid - Whether the check passed.
+ * @param {string} label - The status label text.
+ * @param {string} [detail] - Optional detail text shown after a colon.
+ */
 function checkMark(valid: boolean, label: string, detail?: string): void {
   const icon = valid ? logSymbols.success : logSymbols.error;
-  const msg = detail ? `${label} : ${detail}` : label;
+  const msg = detail ? `${label}: ${detail}` : label;
   console.log(`${icon} ${msg}`);
 }
 
+/**
+ * Print the summary footer message after an annotation run.
+ *
+ * @param {AnnotateResult} result - The result from the annotation run.
+ */
 function printFooter(result: AnnotateResult): void {
   console.log('');
   if (result.filesProcessed === 0) {
@@ -70,7 +82,6 @@ function printFooter(result: AnnotateResult): void {
   } else {
     console.log(chalk.green(`All ${result.filesUpdated} files annotated successfully! 🥳`));
   }
-  console.log('');
 }
 
 // ── Ctrl+C handling ────────────────────────────────────────────────────
@@ -244,20 +255,14 @@ export async function main(): Promise<void> {
   });
 
   if (spinner?.isSpinning) {
-    spinner.succeed('Scan complete');
-  }
-
-  // 5. Show files found checkmark
-  if (showUX) {
-    if (result.filesProcessed > 0) {
-      checkMark(true, 'Files found', `${result.filesProcessed} ${result.filesProcessed === 1 ? 'file' : 'files'}`);
-    } else {
-      checkMark(false, 'No files found');
-    }
+    spinner.stop();
     console.log('');
+    console.log(SEPARATOR);
+    console.log(`${logSymbols.success} Annotate Completed 🎉`);
+    console.log(SEPARATOR);
   }
 
-  // 6. Show formatted output
+  // 5. Show formatted output
   if (opts.json) {
     console.log(formatJson(result));
   } else if (opts.dryRun) {

@@ -54,12 +54,25 @@ const SEPARATOR = chalk.dim('='.repeat(69));
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
+/**
+ * Print a checkmark or error icon with a status label and optional detail.
+ *
+ * @param {boolean} valid - Whether the check passed.
+ * @param {string} label - The status label text.
+ * @param {string} [detail] - Optional detail text shown after a colon.
+ */
 function checkMark(valid: boolean, label: string, detail?: string): void {
   const icon = valid ? logSymbols.success : logSymbols.error;
-  const msg = detail ? `${label} : ${detail}` : label;
+  const msg = detail ? `${label}: ${detail}` : label;
   console.log(`${icon} ${msg}`);
 }
 
+/**
+ * Print the summary footer message after a submission run.
+ *
+ * @param {NextIndexnowResult} result - The result from the IndexNow submission run.
+ * @param {boolean} dryRun - Whether this was a dry-run preview.
+ */
 function printFooter(result: NextIndexnowResult, dryRun: boolean): void {
   console.log('');
   if (dryRun) {
@@ -73,19 +86,22 @@ function printFooter(result: NextIndexnowResult, dryRun: boolean): void {
       )
     );
   }
-  console.log('');
 }
 
+/**
+ * Print detailed failure information for failed submission batches.
+ *
+ * @param {NextIndexnowResult} result - The result from the IndexNow submission run.
+ */
 function printFailures(result: NextIndexnowResult): void {
   if (result.urlsFailed === 0) return;
 
-  console.error(chalk.red.bold('  Failed submissions:'));
+  console.error(chalk.red.bold('Failed submissions:'));
   for (const chunk of result.chunks) {
     if (!chunk.success) {
       console.error(chalk.red(`    ${logSymbols.error} ${chunk.error}`));
     }
   }
-  console.error('');
 }
 
 // ── Ctrl+C handling ────────────────────────────────────────────────────
@@ -143,16 +159,36 @@ function displayResults(result: NextIndexnowResult): void {
   const duration = (result.durationMs / 1000).toFixed(2);
 
   const items = [
-    ['URLs found', String(result.urlsFound), 'green' as const],
-    ['URLs submitted', String(result.urlsSubmitted), 'green' as const],
-    ['URLs failed', String(result.urlsFailed), result.urlsFailed > 0 ? ('red' as const) : ('green' as const)],
-    ['Duration', `${duration}s`, 'dim' as const],
+    ['URLs found', String(result.urlsFound), result.urlsFound > 0 ? ('blue' as const) : ('dim' as const)],
+    ['URLs submitted', String(result.urlsSubmitted), result.urlsSubmitted > 0 ? ('green' as const) : ('dim' as const)],
+    ['URLs failed', String(result.urlsFailed), result.urlsFailed > 0 ? ('red' as const) : ('dim' as const)],
+    ['Duration', `${duration}s`, result.durationMs > 0 ? ('yellow' as const) : ('dim' as const)],
   ];
 
   console.log('');
   for (const [label, value, color] of items) {
-    const coloredValue = color === 'red' ? chalk.red(value) : color === 'dim' ? chalk.dim(value) : chalk.green(value);
-    console.log(`${logSymbols.success} ${chalk.bold(label)} : ${coloredValue}`);
+    let coloredValue: string;
+    switch (color) {
+      case 'red':
+        coloredValue = chalk.red(value);
+        break;
+      case 'dim':
+        coloredValue = chalk.dim(value);
+        break;
+      case 'green':
+        coloredValue = chalk.green(value);
+        break;
+      case 'blue':
+        coloredValue = chalk.blue(value);
+        break;
+      case 'yellow':
+        coloredValue = chalk.yellow(value);
+        break;
+      default:
+        coloredValue = value;
+        break;
+    }
+    console.log(`${logSymbols.success} ${chalk.bold(label)}: ${coloredValue}`);
   }
 }
 
@@ -312,8 +348,11 @@ export async function main(): Promise<void> {
   });
 
   if (spinner?.isSpinning) {
-    spinner.succeed('Submission Completed 🎉');
+    spinner.stop();
   }
+  console.log(SEPARATOR);
+  console.log(`${logSymbols.success} Submission Completed 🎉`);
+  console.log(SEPARATOR);
 
   // 4. Show results
   displayResults(result);

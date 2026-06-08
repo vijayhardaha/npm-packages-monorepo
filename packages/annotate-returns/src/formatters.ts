@@ -80,6 +80,7 @@ function printErrors(result: AnnotateResult): void {
       console.error(`${logSymbols.error} ${file.filePath}: ${chalk.red(file.error)}`);
     }
   }
+
   printSummary(result);
 }
 
@@ -149,19 +150,42 @@ function printSummary(result: AnnotateResult): void {
   const duration = (result.durationMs / 1000).toFixed(2);
 
   const labels = [
-    ['Files scanned', String(result.filesProcessed), 'green' as const],
-    ['Files updated', String(result.filesUpdated), 'green' as const],
-    ['Files failed', String(result.filesFailed), result.filesFailed > 0 ? ('red' as const) : ('green' as const)],
-    ['Types annotated', String(result.typesAnnotated), 'green' as const],
-    ['Duration', `${duration}s`, 'dim' as const],
+    ['Files scanned', String(result.filesProcessed), result.filesProcessed > 0 ? ('blue' as const) : ('dim' as const)],
+    ['Files updated', String(result.filesUpdated), result.filesUpdated > 0 ? ('green' as const) : ('dim' as const)],
+    ['Files failed', String(result.filesFailed), result.filesFailed > 0 ? ('red' as const) : ('dim' as const)],
+    [
+      'Types annotated',
+      String(result.typesAnnotated),
+      result.typesAnnotated > 0 ? ('green' as const) : ('dim' as const),
+    ],
+    ['Duration', `${duration}s`, result.durationMs > 0 ? ('yellow' as const) : ('dim' as const)],
   ];
 
   console.log('');
   for (const [label, value, color] of labels) {
-    const coloredValue = color === 'red' ? chalk.red(value) : color === 'dim' ? chalk.dim(value) : chalk.green(value);
-    console.log(`${logSymbols.success} ${chalk.bold(label)} : ${coloredValue}`);
+    let coloredValue: string;
+    switch (color) {
+      case 'red':
+        coloredValue = chalk.red(value);
+        break;
+      case 'dim':
+        coloredValue = chalk.dim(value);
+        break;
+      case 'green':
+        coloredValue = chalk.green(value);
+        break;
+      case 'blue':
+        coloredValue = chalk.blue(value);
+        break;
+      case 'yellow':
+        coloredValue = chalk.yellow(value);
+        break;
+      default:
+        coloredValue = value;
+        break;
+    }
+    console.log(`${logSymbols.success} ${chalk.bold(label)}: ${coloredValue}`);
   }
-  console.log('');
 }
 
 /**
@@ -175,6 +199,7 @@ function printSummary(result: AnnotateResult): void {
  */
 // fallow-ignore-next-line dead-code
 export function printDryRun(result: AnnotateResult): void {
+  console.log('');
   for (const file of result.files) {
     if (file.annotations.length === 0) {
       continue;
