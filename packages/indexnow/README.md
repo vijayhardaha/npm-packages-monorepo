@@ -37,15 +37,15 @@ The tool reads your sitemap, parses the URLs, and submits them to `https://api.i
 
 ## Options
 
-| Option                   | Description                                                    |
-| ------------------------ | -------------------------------------------------------------- |
-| `--site-url <url>`      | Site URL (e.g. `https://example.com`). Overrides config value  |
-| `--key <key>`           | IndexNow API key. Falls back to `INDEXNOW_KEY` env variable     |
-| `--sitemap <path>`      | Path to the sitemap XML file                                    |
-| `--chunk-size <number>` | URLs per submission batch (default: 100)                        |
-| `-d, --dry-run`         | Preview URLs without submitting to the IndexNow API             |
-| `-h, --help`            | Show help                                                       |
-| `--version`             | Show version                                                    |
+| Option                  | Description                                                   |
+| ----------------------- | ------------------------------------------------------------- |
+| `--site-url <url>`      | Site URL (e.g. `https://example.com`). Overrides config value |
+| `--key <key>`           | IndexNow API key. Falls back to `INDEXNOW_KEY` env variable   |
+| `--sitemap <path>`      | Path to the sitemap XML file                                  |
+| `--chunk-size <number>` | URLs per submission batch (default: 100)                      |
+| `-d, --dry-run`         | Preview URLs without submitting to the IndexNow API           |
+| `-h, --help`            | Show help                                                     |
+| `--version`             | Show version                                                  |
 
 ## How It Works
 
@@ -60,9 +60,9 @@ The tool reads your sitemap, parses the URLs, and submits them to `https://api.i
 
 ### Environment Variables
 
-| Variable         | Description          |
-| ---------------- | -------------------- |
-| `INDEXNOW_KEY`   | IndexNow API key     |
+| Variable       | Description      |
+| -------------- | ---------------- |
+| `INDEXNOW_KEY` | IndexNow API key |
 
 ## Programmatic API
 
@@ -72,7 +72,7 @@ import { run } from "@vijayhardaha/next-indexnow";
 const result = await run({
   siteUrl: "https://example.com",
   key: "my-api-key",
-  dryRun: true, // preview only
+  dryRun: true // preview only
 });
 
 console.log(`Found ${result.urlsFound} URLs`);
@@ -80,21 +80,21 @@ console.log(`Found ${result.urlsFound} URLs`);
 
 ### `NextIndexnowOptions`
 
-| Option      | Type      | Default | Description                              |
-| ----------- | --------- | ------- | ---------------------------------------- |
-| `siteUrl`   | `string`  | —       | Site URL (overrides config)              |
-| `key`       | `string`  | —       | IndexNow API key                         |
-| `sitemap`   | `string`  | —       | Custom sitemap path                      |
-| `chunkSize` | `number`  | `100`   | URLs per submission batch                |
-| `dryRun`    | `boolean` | `false` | Preview without submitting               |
+| Option      | Type      | Default | Description                 |
+| ----------- | --------- | ------- | --------------------------- |
+| `siteUrl`   | `string`  | —       | Site URL (overrides config) |
+| `key`       | `string`  | —       | IndexNow API key            |
+| `sitemap`   | `string`  | —       | Custom sitemap path         |
+| `chunkSize` | `number`  | `100`   | URLs per submission batch   |
+| `dryRun`    | `boolean` | `false` | Preview without submitting  |
 
 ### `NextIndexnowResult`
 
 ```typescript
 interface NextIndexnowResult {
-  urlsFound: number;      // Total URLs extracted from sitemap
-  urlsSubmitted: number;  // Successfully submitted URLs
-  urlsFailed: number;     // URLs that failed to submit
+  urlsFound: number; // Total URLs extracted from sitemap
+  urlsSubmitted: number; // Successfully submitted URLs
+  urlsFailed: number; // URLs that failed to submit
   chunks: SubmissionResult[];
   durationMs: number;
 }
@@ -106,13 +106,10 @@ The tool reads your `next-sitemap.config.*` file to extract `siteUrl` and `outDi
 
 ```javascript
 // next-sitemap.config.js — variable reference style
-const siteDomain = 'https://example.com';
+const siteDomain = "https://example.com";
 
 /** @type {import('next-sitemap').IConfig} */
-const config = {
-  siteUrl: siteDomain,
-  outDir: './public',
-};
+const config = { siteUrl: siteDomain, outDir: "./public" };
 
 module.exports = config;
 ```
