@@ -37,22 +37,22 @@ The tool reads your sitemap, parses the URLs, and submits them to `https://api.i
 
 ## Options
 
-| Option                  | Description                                                   |
-| ----------------------- | ------------------------------------------------------------- |
-| `--site-url <url>`      | Site URL (e.g. `https://example.com`). Overrides config value |
-| `--key <key>`           | IndexNow API key. Falls back to `INDEXNOW_KEY` env variable   |
-| `--sitemap <path>`      | Path to the sitemap XML file                                  |
-| `--chunk-size <number>` | URLs per submission batch (default: 100)                      |
-| `-d, --dry-run`         | Preview URLs without submitting to the IndexNow API           |
-| `-h, --help`            | Show help                                                     |
-| `--version`             | Show version                                                  |
+| Option                  | Description                                                                       |
+| ----------------------- | --------------------------------------------------------------------------------- |
+| `--site-url <url>`      | Site URL (e.g. `https://example.com`). Overrides config value                     |
+| `--key <key>`           | IndexNow API key. Falls back to `INDEXNOW_KEY` env variable or a built-in default |
+| `--sitemap <path>`      | Path to the sitemap XML file                                                      |
+| `--chunk-size <number>` | URLs per submission batch (default: 100)                                          |
+| `-d, --dry-run`         | Preview URLs without submitting to the IndexNow API                               |
+| `-h, --help`            | Show help                                                                         |
+| `--version`             | Show version                                                                      |
 
 ## How It Works
 
 1. **Validates** your Next.js project (`next.config.*` must exist)
 2. **Checks** the `.next` build directory exists and is not empty
 3. **Reads** `next-sitemap.config.*` to extract `siteUrl` and `outDir`
-4. **Resolves** the API key from CLI option or `INDEXNOW_KEY` env variable
+4. **Resolves** the API key from CLI option, `INDEXNOW_KEY` env variable, or a built-in default key
 5. **Creates** the IndexNow verification file at `public/<key>.txt`
 6. **Parses** all `<loc>` URLs from the sitemap XML
 7. **Submits** URLs in batches (default 100) to the IndexNow API
@@ -60,9 +60,9 @@ The tool reads your sitemap, parses the URLs, and submits them to `https://api.i
 
 ### Environment Variables
 
-| Variable       | Description      |
-| -------------- | ---------------- |
-| `INDEXNOW_KEY` | IndexNow API key |
+| Variable       | Description                                                  |
+| -------------- | ------------------------------------------------------------ |
+| `INDEXNOW_KEY` | IndexNow API key (optional — falls back to built-in default) |
 
 ## Programmatic API
 
@@ -80,13 +80,13 @@ console.log(`Found ${result.urlsFound} URLs`);
 
 ### `NextIndexnowOptions`
 
-| Option      | Type      | Default | Description                 |
-| ----------- | --------- | ------- | --------------------------- |
-| `siteUrl`   | `string`  | —       | Site URL (overrides config) |
-| `key`       | `string`  | —       | IndexNow API key            |
-| `sitemap`   | `string`  | —       | Custom sitemap path         |
-| `chunkSize` | `number`  | `100`   | URLs per submission batch   |
-| `dryRun`    | `boolean` | `false` | Preview without submitting  |
+| Option      | Type      | Default          | Description                 |
+| ----------- | --------- | ---------------- | --------------------------- |
+| `siteUrl`   | `string`  | —                | Site URL (overrides config) |
+| `key`       | `string`  | built-in default | IndexNow API key            |
+| `sitemap`   | `string`  | —                | Custom sitemap path         |
+| `chunkSize` | `number`  | `100`            | URLs per submission batch   |
+| `dryRun`    | `boolean` | `false`          | Preview without submitting  |
 
 ### `NextIndexnowResult`
 

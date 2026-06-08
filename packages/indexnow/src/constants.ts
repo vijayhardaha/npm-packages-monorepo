@@ -19,6 +19,9 @@ export const DEFAULT_SITEMAP_DIR = 'public';
 /** IndexNow key verification filename extension. */
 export const KEY_FILE_EXTENSION = '.txt';
 
+/** Default IndexNow API key — used when neither --key option nor INDEXNOW_KEY env var is provided. */
+export const DEFAULT_INDEXNOW_KEY = '91c80f732f4e4e5b80b4c02a7e8c9e9c';
+
 /** Conventional Next.js config filenames to detect a Next.js project. */
 export const NEXT_CONFIG_FILES = ['next.config.ts', 'next.config.mjs', 'next.config.cjs', 'next.config.js'];
 

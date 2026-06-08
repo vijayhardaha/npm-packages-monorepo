@@ -43,7 +43,7 @@ CLI args (commander)
           → validateNextSitemapConfig() checks next-sitemap.config.*
           → readSitemapConfig()       parses siteUrl + outDir
       → resolveSiteConfig()           CLI --site-url overrides config
-      → resolveKeyValue()             CLI --key / INDEXNOW_KEY env; ensures public/<key>.txt
+      → resolveKeyValue()             CLI --key / INDEXNOW_KEY env / built-in default key; ensures public/<key>.txt
       → loadSitemapUrls()             reads & parses sitemap XML
       → submitAllUrls()               submits URLs to IndexNow API in chunks (default 100)
   → displayResults()          [src/bin/cli.ts]
@@ -60,15 +60,15 @@ CLI args (commander)
 
 ## CLI Options
 
-| Option                  | Description                                       |
-| ----------------------- | ------------------------------------------------- |
-| `--site-url <url>`      | Site URL (overrides next-sitemap.config value)    |
-| `--key <key>`           | IndexNow API key (falls back to INDEXNOW_KEY env) |
-| `--sitemap <path>`      | Path to sitemap XML file                          |
-| `--chunk-size <number>` | URLs per submission batch (default: 100)          |
-| `-d, --dry-run`         | Preview URLs without submitting                   |
-| `-h, --help`            | Show help                                         |
-| `--version`             | Show version                                      |
+| Option                  | Description                                                           |
+| ----------------------- | --------------------------------------------------------------------- |
+| `--site-url <url>`      | Site URL (overrides next-sitemap.config value)                        |
+| `--key <key>`           | IndexNow API key (falls back to INDEXNOW_KEY env or built-in default) |
+| `--sitemap <path>`      | Path to sitemap XML file                                              |
+| `--chunk-size <number>` | URLs per submission batch (default: 100)                              |
+| `-d, --dry-run`         | Preview URLs without submitting                                       |
+| `-h, --help`            | Show help                                                             |
+| `--version`             | Show version                                                          |
 
 ## Validation Checks
 
@@ -78,7 +78,7 @@ Before submitting, the tool validates:
 2. **Build directory** — `.next/` or custom build dir exists and is not empty
 3. **Sitemap config** — `next-sitemap.config.{ts,mjs,cjs,js}` exists and has content
 4. **Site URL** — Valid `http://` or `https://` domain root (no path/query)
-5. **API key** — Provided via `--key` option or `INDEXNOW_KEY` env variable
+5. **API key** — Provided via `--key` option, `INDEXNOW_KEY` env variable, or built-in default key
 6. **Key file** — `public/<key>.txt` exists with matching content (auto-created if missing)
 7. **Sitemap file** — Parsable XML with at least one `<loc>` URL
 

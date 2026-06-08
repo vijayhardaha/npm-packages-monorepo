@@ -7,6 +7,9 @@
  * @module formatters
  */
 
+import chalk from 'chalk';
+import logSymbols from 'log-symbols';
+
 import type { AnnotateResult } from './types.ts';
 
 /**
@@ -74,7 +77,7 @@ export function printResults(result: AnnotateResult, options: { verbose?: boolea
 function printErrors(result: AnnotateResult): void {
   for (const file of result.files) {
     if (file.failed && file.error) {
-      console.error(`✗ ${file.filePath}: ${file.error}`);
+      console.error(`${logSymbols.error} ${file.filePath}: ${chalk.red(file.error)}`);
     }
   }
   printSummary(result);
@@ -90,23 +93,25 @@ function printErrors(result: AnnotateResult): void {
  */
 function printVerbose(result: AnnotateResult): void {
   console.log('');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔍 Return Type Annotation Scan');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('');
 
   for (const file of result.files) {
-    const status = file.failed ? '✗ FAILED' : file.updated ? '✓ UPDATED' : '• SKIPPED';
-    console.log(`[${result.files.indexOf(file) + 1}/${result.files.length}] ${file.filePath} ... ${status}`);
+    const status = file.failed
+      ? `${logSymbols.error} Failed`
+      : file.updated
+        ? `${logSymbols.success} Updated`
+        : chalk.dim('• SKIPPED');
+    console.log(
+      `[${result.files.indexOf(file) + 1}/${result.files.length}] ${chalk.cyan(file.filePath)} ... ${status}`
+    );
 
     if (file.annotations.length > 0) {
       for (const ann of file.annotations) {
-        console.log(`  → ${ann.name}(): ${ann.returnType}`);
+        console.log(`  ${chalk.dim('→')} ${chalk.yellow(ann.name)}(): ${chalk.blue(ann.returnType)}`);
       }
     }
 
     if (file.error) {
-      console.error(`  ${file.error}`);
+      console.error(chalk.red(`  ${file.error}`));
     }
   }
 
@@ -124,33 +129,38 @@ function printVerbose(result: AnnotateResult): void {
 function printNormal(result: AnnotateResult): void {
   for (const file of result.files) {
     if (file.updated) {
-      console.log(`✓ ${file.filePath} (${file.annotations.length} annotations)`);
+      console.log(
+        `${logSymbols.success} ${chalk.cyan(file.filePath)} (${chalk.green(String(file.annotations.length))} annotations)`
+      );
     }
     if (file.failed && file.error) {
-      console.error(`✗ ${file.filePath}: ${file.error}`);
+      console.error(`${logSymbols.error} ${file.filePath}: ${chalk.red(file.error)}`);
     }
   }
   printSummary(result);
 }
 
 /**
- * Print the aggregate summary block (files scanned, updated, failed, etc.).
+ * Print the aggregate summary as checkmark-style lines.
  *
  * @param {AnnotateResult} result - The aggregated result from an annotation run.
  */
 function printSummary(result: AnnotateResult): void {
   const duration = (result.durationMs / 1000).toFixed(2);
 
+  const labels = [
+    ['Files scanned', String(result.filesProcessed), 'green' as const],
+    ['Files updated', String(result.filesUpdated), 'green' as const],
+    ['Files failed', String(result.filesFailed), result.filesFailed > 0 ? ('red' as const) : ('green' as const)],
+    ['Types annotated', String(result.typesAnnotated), 'green' as const],
+    ['Duration', `${duration}s`, 'dim' as const],
+  ];
+
   console.log('');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('📋 ANNOTATION RESULTS');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`Files scanned      : ${result.filesProcessed}`);
-  console.log(`Files updated      : ${result.filesUpdated}`);
-  console.log(`Files failed       : ${result.filesFailed}`);
-  console.log(`Types annotated    : ${result.typesAnnotated}`);
-  console.log(`Duration           : ${duration}s`);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  for (const [label, value, color] of labels) {
+    const coloredValue = color === 'red' ? chalk.red(value) : color === 'dim' ? chalk.dim(value) : chalk.green(value);
+    console.log(`${logSymbols.success} ${chalk.bold(label)} : ${coloredValue}`);
+  }
   console.log('');
 }
 
@@ -170,19 +180,21 @@ export function printDryRun(result: AnnotateResult): void {
       continue;
     }
 
-    console.log(file.filePath);
+    console.log(chalk.cyan(file.filePath));
 
     for (const ann of file.annotations) {
-      console.log(`  add: ${ann.name}(): ${ann.returnType}`);
+      console.log(`  ${chalk.dim('add:')} ${chalk.yellow(ann.name)}(): ${chalk.blue(ann.returnType)}`);
     }
   }
 
   if (result.typesAnnotated === 0) {
-    console.log('All files already have return type annotations.');
+    console.log(chalk.dim('All files already have return type annotations.'));
   }
 
   console.log('');
   console.log(
-    `Dry-run complete. ${result.typesAnnotated} annotations would be added across ${result.filesUpdated} files.`
+    chalk.green(
+      `Dry-run complete. ${result.typesAnnotated} annotations would be added across ${result.filesUpdated} files.`
+    )
   );
 }

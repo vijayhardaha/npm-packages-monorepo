@@ -139,6 +139,16 @@ describe('run() — full submission pipeline', () => {
       expect.objectContaining({ body: expect.stringContaining('custom.example.com') })
     );
   });
+
+  it('should invoke onProgress callback for each batch', async () => {
+    const onProgress = vi.fn();
+
+    await run({ chunkSize: 1, onProgress });
+
+    expect(onProgress).toHaveBeenCalledTimes(2);
+    expect(onProgress).toHaveBeenNthCalledWith(1, { batch: 1, totalBatches: 2, urlCount: 1 });
+    expect(onProgress).toHaveBeenNthCalledWith(2, { batch: 2, totalBatches: 2, urlCount: 1 });
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -171,10 +181,12 @@ describe('run() — validation errors', () => {
     await expect(run()).rejects.toThrow('not found');
   });
 
-  it('should throw when no key is provided', async () => {
+  it('should use default key when none is provided', async () => {
     delete process.env.INDEXNOW_KEY;
 
-    await expect(run({ key: undefined })).rejects.toThrow('IndexNow API key is required');
+    const result = await run({ key: undefined, chunkSize: 10 });
+
+    expect(result.urlsSubmitted).toBe(2);
   });
 
   it('should throw when sitemap config exists but has no siteUrl field', async () => {

@@ -11,7 +11,12 @@
  * @property {boolean} [quiet] - Suppress all output except errors and the final summary
  * @property {boolean} [json] - Output results as a machine-readable JSON string
  * @property {boolean} [backup] - Create .bak copies of files before modifying them
+ * @property {AnnotateProgress} [onProgress] - Callback invoked before each file is processed
  */
+
+/** Callback invoked before each file with current progress and file path. */
+export type AnnotateProgress = (info: { file: string; current: number; total: number }) => void;
+
 export interface AnnotateOptions {
   tsconfig?: string;
   include?: string[];
@@ -22,6 +27,8 @@ export interface AnnotateOptions {
   quiet?: boolean;
   json?: boolean;
   backup?: boolean;
+  /** Callback invoked before each file is processed (for progress display). */
+  onProgress?: AnnotateProgress;
 }
 
 /**

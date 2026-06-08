@@ -7,8 +7,14 @@
  * @module next-indexnow
  */
 
-import { CHUNK_SIZE } from './constants.ts';
-import type { NextIndexnowOptions, NextIndexnowResult, NextSitemapConfig, SubmissionResult } from './types.ts';
+import { CHUNK_SIZE, DEFAULT_INDEXNOW_KEY } from './constants.ts';
+import type {
+  NextIndexnowOptions,
+  NextIndexnowResult,
+  NextSitemapConfig,
+  SubmissionResult,
+  IndexnowProgress,
+} from './types.ts';
 import {
   validateSiteUrl,
   validateNextProject,
@@ -101,19 +107,18 @@ function resolveSiteConfig(
  * Resolve the IndexNow API key from options or the INDEXNOW_KEY env var,
  * and ensure the verification key file exists on disk.
  *
+ * Falls back to a hard-coded default key when neither the --key option nor
+ * the INDEXNOW_KEY environment variable is provided.
+ *
  * @param {NextIndexnowOptions} options - CLI options.
  * @param {string}              siteUrl - The resolved site URL (for keyLocation).
  *
  * @returns {{ key: string; keyLocation: string }} The resolved key and its public URL.
  *
- * @throws {Error} If no key is provided or the key file cannot be created.
+ * @throws {Error} If the key file cannot be created.
  */
 function resolveKeyValue(options: NextIndexnowOptions, siteUrl: string): { key: string; keyLocation: string } {
-  const key = options.key ?? process.env.INDEXNOW_KEY;
-
-  if (!key) {
-    throw new Error('IndexNow API key is required. Provide it via --key option or INDEXNOW_KEY environment variable.');
-  }
+  const key = options.key ?? process.env.INDEXNOW_KEY ?? DEFAULT_INDEXNOW_KEY;
 
   const keyFileCheck = ensureKeyFile(key);
   if (!keyFileCheck.valid) {
@@ -151,7 +156,8 @@ async function loadSitemapUrls(options: NextIndexnowOptions, parsedConfig: NextS
  * @param {string}   siteHost    - The site hostname.
  * @param {string}   key         - The IndexNow API key.
  * @param {string}   keyLocation - Public URL of the key verification file.
- * @param {number}   chunkSize   - Maximum URLs per submission batch.
+ * @param {number}      chunkSize   - Maximum URLs per submission batch.
+ * @param {IndexnowProgress} [onProgress] - Callback invoked before each batch submission.
  *
  * @returns {Promise<Pick<NextIndexnowResult, 'urlsSubmitted' | 'urlsFailed' | 'chunks'>>} Aggregate submission counts and per-chunk details.
  */
@@ -160,12 +166,18 @@ async function submitAllUrls(
   siteHost: string,
   key: string,
   keyLocation: string,
-  chunkSize: number
+  chunkSize: number,
+  onProgress?: IndexnowProgress
 ): Promise<Pick<NextIndexnowResult, 'urlsSubmitted' | 'urlsFailed' | 'chunks'>> {
   const chunks: SubmissionResult[] = [];
+  const totalChunks = Math.ceil(urls.length / chunkSize);
 
   for (let i = 0; i < urls.length; i += chunkSize) {
+    const batchNum = Math.floor(i / chunkSize) + 1;
     const chunk = urls.slice(i, i + chunkSize);
+
+    onProgress?.({ batch: batchNum, totalBatches: totalChunks, urlCount: chunk.length });
+
     const result = await submitUrls(siteHost, key, keyLocation, chunk);
     chunks.push(result);
   }
@@ -182,7 +194,7 @@ async function submitAllUrls(
  * Validates the environment (Next.js project, .next dir, sitemap config),
  * reads the sitemap, and submits all URLs to the IndexNow API in chunks.
  *
- * @param {NextIndexnowOptions} options - CLI options (siteUrl, key, sitemap, chunkSize, dryRun).
+ * @param {NextIndexnowOptions} options - CLI options (siteUrl, key, sitemap, chunkSize, dryRun, onProgress).
  *
  * @returns {Promise<NextIndexnowResult>} Aggregate result with per-chunk details.
  */
@@ -206,7 +218,14 @@ export async function run(options: NextIndexnowOptions = {}): Promise<NextIndexn
   }
 
   // 5. Submit URLs in chunks
-  const { urlsSubmitted, urlsFailed, chunks } = await submitAllUrls(urls, siteHost, key, keyLocation, chunkSize);
+  const { urlsSubmitted, urlsFailed, chunks } = await submitAllUrls(
+    urls,
+    siteHost,
+    key,
+    keyLocation,
+    chunkSize,
+    options.onProgress
+  );
 
   return { urlsFound: urls.length, urlsSubmitted, urlsFailed, chunks, durationMs: Date.now() - startTime };
 }

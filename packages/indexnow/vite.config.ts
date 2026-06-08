@@ -32,7 +32,15 @@ export default defineConfig({
     lib: { entry: resolve(__dirname, 'src/bin/cli.ts'), name: 'next-indexnow', fileName: 'cli', formats: ['es'] },
 
     rollupOptions: {
-      external: [...builtinModules, ...builtinModules.map((m) => `node:${m}`), 'commander', 'xml2js'],
+      external: [
+        ...builtinModules,
+        ...builtinModules.map((m) => `node:${m}`),
+        'commander',
+        'xml2js',
+        'ora',
+        'chalk',
+        'log-symbols',
+      ],
       output: { preserveModules: false, entryFileNames: '[name].js' },
     },
   },

@@ -32,7 +32,15 @@ export default defineConfig({
     lib: { entry: resolve(__dirname, 'src/bin/cli.ts'), name: 'annotate-returns', fileName: 'cli', formats: ['es'] },
 
     rollupOptions: {
-      external: [...builtinModules, ...builtinModules.map((m) => `node:${m}`), 'commander', 'ts-morph'],
+      external: [
+        ...builtinModules,
+        ...builtinModules.map((m) => `node:${m}`),
+        'commander',
+        'ts-morph',
+        'ora',
+        'chalk',
+        'log-symbols',
+      ],
       output: { preserveModules: false, entryFileNames: '[name].js' },
     },
   },

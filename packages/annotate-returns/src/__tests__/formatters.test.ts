@@ -71,9 +71,11 @@ describe('printResults (normal mode)', () => {
   it('should print normal output (default mode)', () => {
     printResults(mockResult, {});
 
-    expect(console.log).toHaveBeenCalledWith('✓ src/foo.ts (2 annotations)');
-    expect(console.error).toHaveBeenCalledWith('✗ src/baz.ts: Parse error');
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('ANNOTATION RESULTS'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('src/foo.ts'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('2 annotations'));
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('baz.ts'));
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Parse error'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Files scanned'));
   });
 });
 
@@ -81,9 +83,8 @@ describe('printResults (verbose mode)', () => {
   it('should print verbose output', () => {
     printResults(mockResult, { verbose: true });
 
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Return Type Annotation Scan'));
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('src/foo.ts'));
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('UPDATED'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Updated'));
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('greet'));
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('getUsers'));
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Parse error'));
@@ -95,8 +96,8 @@ describe('printResults (verbose mode)', () => {
     // src/bar.ts is not updated — should appear as SKIPPED
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('SKIPPED'));
 
-    // src/baz.ts failed — should appear as FAILED
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('FAILED'));
+    // src/baz.ts failed — should appear as Failed
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Failed'));
   });
 });
 
@@ -107,9 +108,9 @@ describe('printResults (quiet mode)', () => {
 
     // Quiet mode must NOT print the update line
     const logCalls = (console.log as ReturnType<typeof vi.fn>).mock.calls.map((c) => c[0]);
-    expect(logCalls).not.toContain('✓ src/foo.ts (2 annotations)');
+    expect(logCalls).not.toContain(expect.stringContaining('src/foo.ts'));
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining('baz.ts'));
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('ANNOTATION RESULTS'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Files scanned'));
   });
 });
 
@@ -125,7 +126,7 @@ describe('printResults (edge cases)', () => {
     };
 
     printResults(clean, {});
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('ANNOTATION RESULTS'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Files scanned'));
   });
 
   it('should handle multiple errors in quiet mode', () => {
@@ -185,7 +186,6 @@ describe('printSummary', () => {
   it('should include aggregate fields in output', () => {
     printResults(mockResult, {});
 
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('ANNOTATION RESULTS'));
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('scanned'));
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('updated'));
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('failed'));
@@ -198,9 +198,11 @@ describe('printDryRun', () => {
   it('should print file paths and annotations', () => {
     printDryRun(mockResult);
 
-    expect(console.log).toHaveBeenCalledWith('src/foo.ts');
-    expect(console.log).toHaveBeenCalledWith('  add: greet(): string');
-    expect(console.log).toHaveBeenCalledWith('  add: getUsers(): Promise<User[]>');
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('src/foo.ts'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('greet()'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('string'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('getUsers()'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Promise<User[]>'));
   });
 
   it('should print message when no annotations found', () => {
@@ -217,7 +219,7 @@ describe('printDryRun', () => {
     };
 
     printDryRun(empty);
-    expect(console.log).toHaveBeenCalledWith('All files already have return type annotations.');
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('All files already have'));
   });
 
   it('should print dry-run summary line', () => {

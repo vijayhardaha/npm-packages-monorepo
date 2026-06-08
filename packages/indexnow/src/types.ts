@@ -1,12 +1,20 @@
 /**
+ * Callback invoked before each batch submission.
+ *
+ * @param {{ batch: number; totalBatches: number; urlCount: number }} info - Progress info.
+ */
+export type IndexnowProgress = (info: { batch: number; totalBatches: number; urlCount: number }) => void;
+
+/**
  * Configuration options and result types for the IndexNow CLI tool.
  *
  * @type {NextIndexnowOptions}
- * @property {string}  [siteUrl]  - The site URL (e.g. https://example.com). If omitted, read from next-sitemap.config.
- * @property {string}  [key]      - IndexNow API key. If omitted, read from INDEXNOW_KEY env var or prompted.
- * @property {string}  [sitemap]  - Path to the sitemap XML file. Defaults to public/sitemap-0.xml.
- * @property {number}  [chunkSize] - URLs per submission batch. Defaults to 100.
- * @property {boolean} [dryRun]  - Preview changes without submitting when true.
+ * @property {string}  [siteUrl]    - The site URL (e.g. https://example.com). If omitted, read from next-sitemap.config.
+ * @property {string}  [key]        - IndexNow API key. If omitted, read from INDEXNOW_KEY env var or a built-in default key.
+ * @property {string}  [sitemap]    - Path to the sitemap XML file. Defaults to public/sitemap-0.xml.
+ * @property {number}  [chunkSize]  - URLs per submission batch. Defaults to 100.
+ * @property {boolean} [dryRun]     - Preview changes without submitting when true.
+ * @property {IndexnowProgress} [onProgress] - Callback invoked before each batch submission.
  */
 export interface NextIndexnowOptions {
   siteUrl?: string;
@@ -14,6 +22,7 @@ export interface NextIndexnowOptions {
   sitemap?: string;
   chunkSize?: number;
   dryRun?: boolean;
+  onProgress?: IndexnowProgress;
 }
 
 /**

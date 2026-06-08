@@ -10,7 +10,7 @@ import { resolve, join, dirname } from 'node:path';
 
 import { Project, SyntaxKind, type SourceFile, type FunctionDeclaration } from 'ts-morph';
 
-import type { AnnotateOptions, AnnotateResult, Annotation, FileResult } from './types.ts';
+import type { AnnotateOptions, AnnotateResult, Annotation, FileResult, AnnotateProgress } from './types.ts';
 
 /**
  * Create a `.bak` copy of a file before modification.
@@ -454,21 +454,28 @@ async function processSourceFile(sourceFile: SourceFile, dryRun: boolean, backup
  *
  * @param {SourceFile[]} sourceFiles - The list of source files to process.
  * @param {boolean} dryRun - If true, skips saving.
- * @param {boolean} backup - If true, creates a backup before saving.
+ * @param {boolean}          backup     - If true, creates a backup before saving.
+ * @param {AnnotateProgress} [onProgress] - Callback invoked before each file is processed.
  *
  * @returns {Promise<Pick<AnnotateResult, 'filesUpdated' | 'filesFailed' | 'typesAnnotated' | 'files'>>} The aggregated stats and results.
  */
 async function processSourceFiles(
   sourceFiles: SourceFile[],
   dryRun: boolean,
-  backup: boolean
+  backup: boolean,
+  onProgress?: AnnotateProgress
 ): Promise<Pick<AnnotateResult, 'filesUpdated' | 'filesFailed' | 'typesAnnotated' | 'files'>> {
   const files: FileResult[] = [];
   let filesUpdated = 0;
   let filesFailed = 0;
   let typesAnnotated = 0;
 
-  for (const sourceFile of sourceFiles) {
+  for (let i = 0; i < sourceFiles.length; i++) {
+    const sourceFile = sourceFiles[i]!;
+    const filePath = sourceFile.getFilePath().toString();
+
+    onProgress?.({ file: filePath, current: i + 1, total: sourceFiles.length });
+
     const result = await processSourceFile(sourceFile, dryRun, backup);
 
     if (result.updated) {
@@ -486,13 +493,6 @@ async function processSourceFiles(
   return { filesUpdated, filesFailed, typesAnnotated, files };
 }
 
-/**
- * Try to find tsconfig.json by walking up from include pattern directories.
- *
- * @param {string[]} include - Include patterns to search from.
- *
- * @returns {string | null} Absolute tsconfig path, or null if not found.
- */
 /**
  * Walk up from a directory looking for tsconfig.json.
  *
@@ -578,7 +578,7 @@ function findTsconfigInSubdirectories(): string | null {
  * @param {string[]} include             - Include patterns.
  * @param {boolean}  userProvidedInclude - Whether the user explicitly provided include patterns.
  *
- * @returns {{ tsconfigPath: string | null; startTime: number }} Resolved path or null.
+ * @returns {string | null} Resolved absolute tsconfig path, or null if not found.
  */
 function resolveTsconfigPath(tsconfig: string, include: string[], userProvidedInclude: boolean): string | null {
   const tsconfigPath = resolve(tsconfig);
@@ -640,7 +640,12 @@ export async function annotate(options: AnnotateOptions = {}): Promise<AnnotateR
     return emptyResult(startTime);
   }
 
-  const { filesUpdated, filesFailed, typesAnnotated, files } = await processSourceFiles(sourceFiles, dryRun, backup);
+  const { filesUpdated, filesFailed, typesAnnotated, files } = await processSourceFiles(
+    sourceFiles,
+    dryRun,
+    backup,
+    options.onProgress
+  );
 
   return {
     filesProcessed: sourceFiles.length,

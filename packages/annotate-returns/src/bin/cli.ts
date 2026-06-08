@@ -21,13 +21,70 @@
  */
 
 import { readFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import chalk from 'chalk';
 import { Command } from 'commander';
+import logSymbols from 'log-symbols';
+import ora from 'ora';
 
 import { formatJson, printDryRun, printResults } from '../formatters.ts';
 import { annotate } from '../index.ts';
+import type { AnnotateResult } from '../types.ts';
+
+// ── ASCII Banner ───────────────────────────────────────────────────────
+
+const BANNER = `
+${chalk.white(' █████╗ ███╗   ██╗███╗   ██╗ ██████╗ ████████╗ █████╗ ████████╗███████╗')}
+${chalk.white('██╔══██╗████╗  ██║████╗  ██║██╔═══██╗╚══██╔══╝██╔══██╗╚══██╔══╝██╔════╝')}
+${chalk.white('███████║██╔██╗ ██║██╔██╗ ██║██║   ██║   ██║   ███████║   ██║   █████╗  ')}
+${chalk.white('██╔══██║██║╚██╗██║██║╚██╗██║██║   ██║   ██║   ██╔══██║   ██║   ██╔══╝  ')}
+${chalk.white('██║  ██║██║ ╚████║██║ ╚████║╚██████╔╝   ██║   ██║  ██║   ██║   ███████╗')}
+${chalk.white('╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚══════╝')}`;
+
+const SEPARATOR = chalk.dim('='.repeat(71));
+
+// ── Helpers ────────────────────────────────────────────────────────────
+
+function checkMark(valid: boolean, label: string, detail?: string): void {
+  const icon = valid ? logSymbols.success : logSymbols.error;
+  const msg = detail ? `${label} : ${detail}` : label;
+  console.log(`${icon} ${msg}`);
+}
+
+function printFooter(result: AnnotateResult): void {
+  console.log('');
+  if (result.filesProcessed === 0) {
+    console.log(chalk.yellow('No TypeScript files found to scan.'));
+  } else if (result.filesUpdated === 0 && result.filesFailed === 0) {
+    console.log(chalk.green('All files already have return type annotations.'));
+  } else if (result.filesFailed > 0 && result.filesUpdated === 0) {
+    console.log(chalk.red(`All ${result.filesProcessed} files failed to process.`));
+  } else if (result.filesFailed > 0) {
+    console.log(
+      chalk.yellow(
+        `${result.filesUpdated}/${result.filesProcessed} files updated successfully (${result.filesFailed} failed).`
+      )
+    );
+  } else {
+    console.log(chalk.green(`All ${result.filesUpdated} files annotated successfully! 🥳`));
+  }
+  console.log('');
+}
+
+// ── Ctrl+C handling ────────────────────────────────────────────────────
+
+let spinner: ReturnType<typeof ora> | null = null;
+
+process.on('SIGINT', () => {
+  if (spinner?.isSpinning) {
+    spinner.stop();
+  }
+  console.log('');
+  console.log(chalk.yellow('Process aborted by user.'));
+  process.exit(130);
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const pkgPathSrc = resolve(__filename, '..', '..', '..', 'package.json');
@@ -115,8 +172,9 @@ export function resolveIncludePatterns(args: string[], optsInclude: string[] | u
 /**
  * Main CLI entry point.
  *
- * Reads parsed commander options, invokes the annotate library, formats
- * the output based on flags, and exits with the appropriate code.
+ * Displays the ASCII banner, validates the tsconfig, scans TypeScript
+ * files for missing return type annotations, shows results, and exits
+ * with the appropriate code.
  */
 // fallow-ignore-next-line complexity
 export async function main(): Promise<void> {
@@ -125,6 +183,47 @@ export async function main(): Promise<void> {
 
   const include = resolveIncludePatterns(args, opts.include);
 
+  const showUX = !opts.json;
+  const showProgress = showUX && !opts.quiet && !opts.verbose;
+
+  // 1. Show banner + separator + version
+  if (showUX) {
+    console.log(BANNER);
+    console.log('');
+    console.log(SEPARATOR);
+    console.log(chalk.yellow(`annotate-returns: v${pkg.version}`));
+    console.log(SEPARATOR);
+    console.log('');
+
+    // 2. Tsconfig check — walk up from CWD for default path to match library resolution
+    const tsconfigPath = resolve(opts.tsconfig);
+    let tsconfigExists = existsSync(tsconfigPath);
+    if (!tsconfigExists && opts.tsconfig === 'tsconfig.json') {
+      let dir = process.cwd();
+      while (true) {
+        const candidate = join(dir, 'tsconfig.json');
+        if (existsSync(candidate)) {
+          tsconfigExists = true;
+          break;
+        }
+        const parent = dirname(dir);
+        if (parent === dir) break;
+        dir = parent;
+      }
+    }
+    if (tsconfigExists) {
+      checkMark(true, 'tsconfig found', opts.tsconfig);
+    } else {
+      checkMark(false, 'tsconfig not found', opts.tsconfig);
+    }
+  }
+
+  // 3. Create spinner for progress (normal mode only)
+  if (showProgress) {
+    spinner = ora({ color: 'cyan', discardStdin: false });
+  }
+
+  // 4. Run annotation
   const result = await annotate({
     tsconfig: opts.tsconfig,
     include: include.length > 0 ? include : undefined,
@@ -132,8 +231,33 @@ export async function main(): Promise<void> {
     dryRun: opts.dryRun ?? false,
     check: opts.check ?? false,
     backup: opts.backup ?? false,
+    onProgress: showProgress
+      ? ({ file, current, total }) => {
+          if (spinner) {
+            spinner.text = `[${current}/${total}] ${file}`;
+            if (!spinner.isSpinning) {
+              spinner.start();
+            }
+          }
+        }
+      : undefined,
   });
 
+  if (spinner?.isSpinning) {
+    spinner.succeed('Scan complete');
+  }
+
+  // 5. Show files found checkmark
+  if (showUX) {
+    if (result.filesProcessed > 0) {
+      checkMark(true, 'Files found', `${result.filesProcessed} ${result.filesProcessed === 1 ? 'file' : 'files'}`);
+    } else {
+      checkMark(false, 'No files found');
+    }
+    console.log('');
+  }
+
+  // 6. Show formatted output
   if (opts.json) {
     console.log(formatJson(result));
   } else if (opts.dryRun) {
@@ -142,6 +266,12 @@ export async function main(): Promise<void> {
     printResults(result, { verbose: opts.verbose, quiet: opts.quiet });
   }
 
+  // 7. Show footer message (dry-run already has its own summary from printDryRun)
+  if (showUX && !opts.dryRun) {
+    printFooter(result);
+  }
+
+  // 8. Exit with appropriate code
   if (result.filesFailed > 0) {
     process.exit(1);
   }
@@ -152,6 +282,6 @@ export async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error('Unexpected error:', error instanceof Error ? error.message : String(error));
+  console.error(chalk.red('Unexpected error:'), error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

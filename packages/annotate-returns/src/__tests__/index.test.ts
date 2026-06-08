@@ -272,6 +272,27 @@ describe('annotate() — annotation pipeline', () => {
     expect(result.filesUpdated).toBe(1);
     expect(result.typesAnnotated).toBe(1);
   });
+
+  it('should invoke onProgress callback for each file', async () => {
+    writeFixture('tsconfig.json', TSCONFIG);
+    writeFixture('greet.ts', GREET_SRC);
+    writeFixture('already.ts', ALREADY_SRC);
+    writeFixture('nojsdoc.ts', NO_JSDOC_SRC);
+
+    const onProgress = vi.fn();
+
+    await annotate({ tsconfig: join(tmpDir, 'tsconfig.json'), include: [join(tmpDir, '*.ts')], onProgress });
+
+    expect(onProgress).toHaveBeenCalledTimes(3);
+
+    // Each call should provide file, current, and total
+    const calls = onProgress.mock.calls.map(([info]) => [info.current, info.total, info.file.split('/').pop()]);
+    expect(calls).toEqual([
+      [1, 3, 'already.ts'],
+      [2, 3, 'greet.ts'],
+      [3, 3, 'nojsdoc.ts'],
+    ]);
+  });
 });
 
 // ---------------------------------------------------------------------------
