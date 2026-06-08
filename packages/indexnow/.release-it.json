@@ -6,7 +6,7 @@
     "tagAnnotation": "next-indexnow@${version}",
     "tagName": "next-indexnow@${version}"
   },
-  "npm": { "publish": true, "publishArgs": ["--access=public"], "ignoreVersion": true, "publishPath": "." },
+  "npm": { "publish": true, "publishArgs": ["--access=public"], "publishPath": "." },
   "github": { "releaseName": "next-indexnow v${version}" },
   "hooks": {
     "before:init": ["bun run tsc", "bun run lint", "bun run test", "bun run build"],
