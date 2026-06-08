@@ -10,7 +10,7 @@
 cd packages/annotate-returns
 bun install
 bun run build     # builds dist/cli.js
-bun run test      # runs vitest (36 tests)
+bun run test      # runs vitest (37 tests)
 bun run tsc       # type-check
 ```
 
@@ -19,18 +19,11 @@ bun run tsc       # type-check
 ```
 src/
   index.ts         → Core library: annotate() + 20+ helpers
-                     (backupFile, createProject, resolveIncludeGlobs, validateNoJsFiles,
-                      buildExcludedSet, resolveGitignoreSearchDirs, walkUpForGitignore,
-                      findGitignorePatterns, filterSourceFiles, loadSourceFiles, emptyResult,
-                      annotateFunction, processFunctions, saveModifications, processSourceFile,
-                      processSourceFiles, resolveTsconfigPath, walkUpForTsconfig,
-                      findTsconfigByWalkingUp, findTsconfigInSubdirectories)
   types.ts         → TypeScript interfaces (AnnotateOptions, AnnotateResult, FileResult, Annotation)
-  formatters.ts    → Output formatting (formatJson, printResults, printDryRun)
-  bin/cli.ts       → CLI entry point (Commander-based): main() + resolveIncludePatterns
+  formatters.ts    → Output formatting (formatJson, printResults, printDryRun, printSummary)
+  bin/cli.ts       → CLI entry point (Commander-based): main(), checkMark(), printFooter()
   __tests__/
-    index.test.ts        → 22 tests: annotation pipeline, dry-run, backup, tsconfig discovery,
-                            exclude patterns, complex types, edge cases
+    index.test.ts        → 23 tests: annotation pipeline, dry-run, backup, tsconfig discovery
     formatters.test.ts   → 14 tests: all output formatters
 dist/
   cli.js           → Built CLI binary (produced by vite build)
@@ -43,35 +36,55 @@ dist/
 ```
 CLI args (commander)
   → annotate(options)           [src/index.ts]
-      → resolveTsconfigPath()   finds tsconfig.json (CWD, walk-up, or subdirectory scan)
+      → resolveTsconfigPath()   finds tsconfig.json
       → createProject()         ts-morph Project
-      → loadSourceFiles()       resolves globs, validates no .js files, builds exclude set,
-                                 finds .gitignore patterns, filters source files
-      → processSourceFile()     [per file]
-          → scans JSDoc @returns tags
-          → matches {Type} pattern
-          → applies return types via ts-morph
-          → optionally backs up & saves
+      → loadSourceFiles()       resolves globs, gitignore-aware filtering
+      → processSourceFile()     [per file] scans JSDoc, applies return types
   → formatter                   [src/formatters.ts]
       → formatJson()            [--json]
-      → printResults()          [default/--verbose/--quiet]
+      → printResults()          [default/--verbose/--quiet] → printSummary()
       → printDryRun()           [--dry-run]
+  → printFooter()               [src/bin/cli.ts] — single-line result message with emoji
 ```
 
-### Tsconfig Discovery
+## CLI Output
 
-When `tsconfig.json` is not found at CWD:
+```
+(ASCII banner in white)
+=======================================================================
+annotate-returns: v1.1.0       ← tool name in yellow
+=======================================================================
 
-1. **Walk-up**: Resolves each include pattern to a filesystem path, walks up looking for `tsconfig.json`
-2. **Subdirectory scan** (default includes only): Scans CWD subdirectories (skipping hidden dirs and build output) for a `tsconfig.json`
+✔ tsconfig found: tsconfig.json
 
-### Key Decisions
+=======================================================================
+✔ Annotate Completed 🎉        ← separator-wrapped heading
+=======================================================================
 
-- **ts-morph**: Used for TypeScript AST manipulation. `skipAddingFilesFromTsConfig: true` to avoid auto-loading project files; files are added explicitly via `addSourceFilesAtPaths`.
-- **Commander**: CLI argument parsing library. Handles `--help`, `--version`, option validation, pre-action hook for mutually exclusive flags.
-- **Vite (SSR mode)**: Builds the CLI as a single ESM bundle with external dependencies (commander, ts-morph).
-- **Vitest**: Test runner with real temp directories for filesystem tests and v8 coverage (100% line coverage).
-- **`.gitignore`-aware**: Automatically parses `.gitignore` files by walking up from include directories and excludes matched paths from processing.
+✔ Files scanned: 66            ← blue (>0) / dim (=0)
+✔ Files updated: 0             ← green (>0) / dim (=0)
+✔ Files failed: 0              ← dim (=0) / red (>0)
+✔ Types annotated: 0           ← green (>0) / dim (=0)
+✔ Duration: 0.30s              ← yellow (>0) / dim (=0)
+
+All files already have return type annotations.     ← footer message
+```
+
+### Key Visual Conventions
+
+- **Icons**: `log-symbols` package (`✔` success, `✖` error) — consistent across all output
+- **Colors** (value-only, labels always bold default):
+  - `Files scanned`: blue when > 0, dim when 0
+  - `Files updated`: green when > 0, dim when 0
+  - `Files failed`: red when > 0, dim when 0
+  - `Types annotated`: green when > 0, dim when 0
+  - `Duration`: yellow when > 0, dim when 0
+- **Labels (checkMark)**: `label: detail` — colon with space after, no space before
+- **Separators**: `chalk.dim('='.repeat(71))` — wraps banners, versions, and completion headings
+- **Prose vs labels**: Data labels use Title Case (`Files scanned`), error labels use lowercase (`tsconfig found`)
+- **Spacing**: No indentation before checkmarks or footer messages; blank line between tsconfig check and heading separator; blank line between bottom separator and summary (from `printSummary`)
+- **No `Files found` line**: The intermediate `✔ Files found: N files` checkmark was removed to reduce clutter
+- **Spinner**: Progress spinner uses `ora` (cyan color), stopped with `spinner.stop()` + manual `logSymbols.success` log for icon consistency
 
 ## CLI Options
 
@@ -135,6 +148,7 @@ bun run format:check
 
 - **Types & Interfaces**: Use `@type {TypeName}` followed by `@property {type} name - description` for each property in exact order. Include a one-line summary followed by a blank line before the tags.
 - **Functions & Methods**: Include a meaningful summary, a blank line, `@param` tags grouped together, a blank line, and an `@returns` tag (if returning a meaningful value).
+- **Private helpers** (non-exported): Also documented with JSDoc for maintainability.
 - **Constants**: Use a simple single-line summary block (`/** Description. */`). No tags or blank lines.
 - **Test Files**: Test files must start with a `/** ... */` block comment detailing what the test covers.
 
@@ -144,4 +158,5 @@ bun run format:check
 - Ensure 100% line coverage including branches where practical.
 - Use early returns and minimal nesting.
 - Extract complex logic into focused helpers.
+- Color logic uses `switch` statement over `color` string (red/dim/green/blue/yellow/default).
 - Edge-case fallback paths (e.g., last-resort `return null`) are suppressed with `/* v8 ignore next */`.

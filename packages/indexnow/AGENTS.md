@@ -10,7 +10,7 @@
 cd packages/indexnow
 bun install
 bun run build     # builds dist/cli.js
-bun run test      # runs vitest (56 tests)
+bun run test      # runs vitest (57 tests)
 bun run tsc       # type-check
 ```
 
@@ -18,14 +18,14 @@ bun run tsc       # type-check
 
 ```
 src/
-  bin/cli.ts       → CLI entry point (Commander): main()
+  bin/cli.ts       → CLI entry point (Commander): main(), displayResults(), checkMark(), printFooter(), printFailures()
   index.ts         → Core library: run() + helpers (validateEnvironment, resolveSiteConfig, resolveKeyValue, loadSitemapUrls, submitAllUrls)
   utils.ts         → Validation & helpers (validateSiteUrl, validateNextProject, validateDotNext, validateNextSitemapConfig, readSitemapConfig, ensureKeyFile, readSitemap, submitUrls)
   constants.ts     → Shared constants (API URL, filenames, chunk size)
   types.ts         → TypeScript interfaces (NextIndexnowOptions, NextIndexnowResult, NextSitemapConfig)
   __tests__/
     utils.test.ts  → 43 tests covering all utility functions
-    index.test.ts  → 13 tests covering the run() pipeline
+    index.test.ts  → 14 tests covering the run() pipeline
 dist/
   cli.js           → Built CLI binary (produced by vite build)
 ```
@@ -36,27 +36,58 @@ dist/
 
 ```
 CLI args (commander)
-  → run(options)              [src/index.ts]
+  → run(options)                    [src/index.ts]
       → validateEnvironment()
-          → validateNextProject()     checks for next.config.*
-          → validateDotNext()         checks .next/ dir exists & not empty
-          → validateNextSitemapConfig() checks next-sitemap.config.*
-          → readSitemapConfig()       parses siteUrl + outDir
-      → resolveSiteConfig()           CLI --site-url overrides config
-      → resolveKeyValue()             CLI --key / INDEXNOW_KEY env / built-in default key; ensures public/<key>.txt
-      → loadSitemapUrls()             reads & parses sitemap XML
-      → submitAllUrls()               submits URLs to IndexNow API in chunks (default 100)
-  → displayResults()          [src/bin/cli.ts]
-  → handleFailures()          [src/bin/cli.ts]
+      → resolveSiteConfig()         CLI --site-url overrides config
+      → resolveKeyValue()           CLI --key / INDEXNOW_KEY env / built-in default key
+      → loadSitemapUrls()           reads & parses sitemap XML
+      → submitAllUrls()             submits URLs to IndexNow API in chunks (default 100)
+  → displayResults()                [src/bin/cli.ts] — color-coded checkmark summary
+  → printFooter()                   [src/bin/cli.ts] — single-line result message with emoji
+  → printFailures()                 [src/bin/cli.ts] — lists failed chunk errors
 ```
 
-### Key Decisions
+## CLI Output
 
-- **Commander**: CLI argument parsing library. Handles `--help`, `--version`, option validation.
-- **xml2js**: XML parsing library for sitemap parsing.
-- **Vite (SSR mode)**: Builds the CLI as a single ESM bundle with external dependencies (commander, xml2js).
-- **Vitest**: Test runner with v8 coverage for 100% line coverage.
-- **IndexNow API**: Submits URLs via POST to `https://api.indexnow.org/indexnow` with host, key, keyLocation, and urlList.
+```
+(ASCII banner in white)
+=====================================================================
+next-indexnow: v0.0.1      ← tool name in yellow
+=====================================================================
+
+✔ Next.js config found                  ← log-symbols icons
+✔ Sitemap config found: next-sitemap.config.js  ← label: detail format
+✔ Site URL resolved: example.com
+✔ API key resolved: via INDEXNOW_KEY env
+✔ Key verification file: 91c8...txt created
+✔ Sitemap loaded: 10 URLs found
+
+=====================================================================
+✔ Submission Completed 🎉               ← separator-wrapped heading
+=====================================================================
+
+✔ URLs found: 10                        ← blue (>0) / dim (=0)
+✔ URLs submitted: 10                    ← green (>0) / dim (=0)
+✔ URLs failed: 0                        ← dim (=0) / red (>0)
+✔ Duration: 1.23s                       ← yellow (>0) / dim (=0)
+
+All 10 urls submitted to IndexNow successfully! 🥳  ← lowercase in prose, emoji end
+```
+
+### Key Visual Conventions
+
+- **Icons**: `log-symbols` package (`✔` success, `✖` error) — consistent across all output
+- **Colors** (value-only, labels always bold default):
+  - `URLs found`: blue when > 0, dim when 0
+  - `URLs submitted`: green when > 0, dim when 0
+  - `URLs failed`: red when > 0, dim when 0
+  - `Duration`: yellow when > 0, dim when 0
+- **Labels (checkMark)**: `label: detail` — colon with space after, no space before
+- **Separators**: `chalk.dim('='.repeat(69))` — wraps banners, versions, and completion headings
+- **Prose vs labels**: Data labels use uppercase (`URLs found`), prose messages use lowercase (`1 urls submitted`)
+- **Dry-run**: Heading always shows `Submission Completed 🎉` regardless of mode
+- **Spacing**: No indentation before checkmarks or footer messages; blank lines between logical sections
+- **Spinner**: Progress spinner uses `ora` (cyan color), stopped with `spinner.stop()` + manual `logSymbols.success` log for icon consistency
 
 ## CLI Options
 
@@ -84,8 +115,8 @@ Before submitting, the tool validates:
 
 ## Error Handling
 
-- Validation failures throw descriptive errors caught by the CLI.
-- API submission failures per chunk are reported individually.
+- Validation failures call `console.log(chalk.red(...))` + `process.exit(1)`.
+- API submission failures per chunk are reported individually via `printFailures()`.
 - Non-`Error` thrown values are stringified.
 - Network errors in `fetch()` are caught and reported.
 
@@ -123,6 +154,7 @@ Tags follow the pattern `next-indexnow@<version>`.
 ### JSDoc Conventions
 
 - **Functions & Methods**: Include a meaningful summary, a blank line, `@param` tags grouped together, a blank line, and an `@returns` tag (if returning a meaningful value).
+- **Private helpers** (non-exported): Also documented with JSDoc for maintainability, though eslint's `jsdoc/require-jsdoc` has `publicOnly: true`.
 
 ### Coding Style
 
@@ -130,3 +162,4 @@ Tags follow the pattern `next-indexnow@<version>`.
 - Use early returns and minimal nesting.
 - Extract complex functions into focused helpers (<60 LOC per function).
 - Maintain 100% line coverage for all source files.
+- Color logic uses `switch` statement over `color` string (red/dim/green/blue/yellow/default).

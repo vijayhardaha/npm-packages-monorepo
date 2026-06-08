@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] — 2026-06-08
+
+### Added
+
+- **`log-symbols` package**: All hardcoded `✓`/`✗` icons replaced with `logSymbols.success`/`logSymbols.error` for consistent cross-platform icon rendering.
+- **Separator-wrapped completion heading**: `✔ Annotate Completed 🎉` now displayed between `=====` separators after scan completes, matching the project's visual rhythm.
+- **Footer emoji**: Success message now includes `🥳` emoji (`All N files annotated successfully! 🥳`).
+- **JSDoc documentation**: Added JSDoc to all non-exported helper functions (`checkMark`, `printFooter`, `resolveIncludePatterns`).
+- **Blank line spacing**: Added blank line before the separator heading for consistent visual separation between tsconfig check and completion message.
+
+### Changed
+
+- **Spinner icon consistency**: `spinner.succeed()` replaced with `spinner.stop()` + manual `console.log()` using `logSymbols.success`, ensuring all checkmark icons come from the same source.
+- **Completion message**: `Scan complete` → `Annotate Completed 🎉` for consistency with the tool name and emoji style.
+- **Status labels**: Verbose mode output changed from UPPERCASE to Title Case (`FAILED` → `Failed`, `UPDATED` → `Updated`).
+- **Colon formatting**: `label : detail` → `label: detail` (space before colon removed, space after retained).
+- **Color logic**: Nested ternary converted to a `switch` statement for improved readability and maintainability.
+- **Summary color coding**: Values now use semantic colors — `dim` when 0, colored when > 0:
+  - `Files scanned`: blue when > 0
+  - `Files updated`: green when > 0
+  - `Files failed`: red when > 0
+  - `Types annotated`: green when > 0
+  - `Duration`: yellow when > 0
+- **Footer spacing**: Removed leading `console.log('')` from `printFooter` to eliminate double blank line caused by `printSummary`'s trailing blank line.
+- **`Files found` line removed**: The intermediate `✔ Files found: N files` checkmark was removed to reduce output clutter — summary now goes directly from separator to results.
+
+### Fixed
+
+- **Double blank line before footer**: `printSummary` ended with `console.log('')` and `printFooter` started with one, creating a double blank line. Fixed by removing the leading blank line from `printFooter`.
+
 ## [1.1.0] — 2026-06-08
 
 ### Added
