@@ -55,7 +55,10 @@
   },
   "license": "MIT",
   "dependencies": {
+    "chalk": "^5.6.2",
     "commander": "^15.0.0",
+    "log-symbols": "^7.0.1",
+    "ora": "^9.4.0",
     "ts-morph": "^28.0.0"
   }
 }
