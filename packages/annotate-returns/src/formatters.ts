@@ -19,7 +19,6 @@ import type { AnnotateResult } from './types.ts';
  *
  * @returns {string} A JSON string with indentation for readability.
  */
-// fallow-ignore-next-line dead-code
 export function formatJson(result: AnnotateResult): string {
   return JSON.stringify(
     {
@@ -52,7 +51,6 @@ export function formatJson(result: AnnotateResult): string {
  * @param {boolean}        [options.verbose] - Show detailed output when true.
  * @param {boolean}        [options.quiet]   - Suppress non-error output when true.
  */
-// fallow-ignore-next-line dead-code
 export function printResults(result: AnnotateResult, options: { verbose?: boolean; quiet?: boolean }): void {
   const { verbose, quiet } = options;
 
@@ -197,7 +195,6 @@ function printSummary(result: AnnotateResult): void {
  *
  * @param {AnnotateResult} result - The aggregated result from an annotation run.
  */
-// fallow-ignore-next-line dead-code
 export function printDryRun(result: AnnotateResult): void {
   console.log('');
   for (const file of result.files) {
