@@ -7,4 +7,8 @@
 // Docs:    https://www.typescriptlang.org/tsconfig
 // =======================================================================
 
-{ "extends": "../../tsconfig", "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": { "paths": { "@/*": ["./src/*"] } },
+  "include": ["src", "*.config.mjs", "*.config.ts", "*.d.ts"]
+}
