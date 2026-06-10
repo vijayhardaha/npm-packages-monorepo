@@ -1,6 +1,6 @@
 {
   "name": "@vijayhardaha/schema-builder",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "Reusable Schema.org structured data utilities, types, and React components",
   "scripts": {
     "dev": "vite",
