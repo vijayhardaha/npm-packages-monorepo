@@ -9,8 +9,33 @@ Monorepo for publishing TypeScript CLI tools and utility packages.
 
 | Package                                                         | npm                                                                                                                                 | Description                                                                       |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [`@vijayhardaha/schema-builder`](./packages/schema-builder)     | [![npm](https://img.shields.io/npm/v/@vijayhardaha/schema-builder)](https://www.npmjs.com/package/@vijayhardaha/schema-builder)     | Schema.org structured data utilities, types, and React components                 |
 | [`@vijayhardaha/annotate-returns`](./packages/annotate-returns) | [![npm](https://img.shields.io/npm/v/@vijayhardaha/annotate-returns)](https://www.npmjs.com/package/@vijayhardaha/annotate-returns) | Add missing TypeScript return type annotations from JSDoc `@returns` tags         |
 | [`@vijayhardaha/next-indexnow`](./packages/indexnow)            | [![npm](https://img.shields.io/npm/v/@vijayhardaha/next-indexnow)](https://www.npmjs.com/package/@vijayhardaha/next-indexnow)       | Submit Next.js sitemap URLs to the IndexNow API for faster search engine indexing |
+
+### @vijayhardaha/schema-builder
+
+Library providing reusable Schema.org structured data utilities, types, and React components for JSON-LD script tags.
+
+**Key features:**
+
+- Full TypeScript support with strict mode and type-safe Schema.org types via `schema-dts`
+- Schema functions for Person, Organization, WebSite, WebPage, WebAPI, SoftwareApplication, and BreadcrumbList
+- React `JsonLd` component for rendering JSON-LD script tags with XSS protection
+- Utility functions: `deepMerge`, `mergeWithType`, `toGraph`, `buildId`, `validateUrl`, `resolveUrl`, `cleanUrl`
+- Multi-entry build (core + react) via Vite with `vite-plugin-dts`
+- 100% line coverage, 0 high-complexity issues above threshold
+
+```typescript
+import { personSchema, webSiteSchema, toGraph } from "@vijayhardaha/schema-builder";
+
+const person = personSchema({ rootUrl: "https://example.com" });
+const website = webSiteSchema({ rootUrl: "https://example.com" });
+
+const graph = toGraph(person, website);
+```
+
+[→ Package documentation](./packages/schema-builder/README.md) · [→ npm](https://www.npmjs.com/package/@vijayhardaha/schema-builder)
 
 ### @vijayhardaha/annotate-returns
 
@@ -69,7 +94,7 @@ bun install
 # Build all packages
 bun run build
 
-# Run all tests (56 indexnow + 36 annotate-returns)
+# Run all tests (57 indexnow + 37 annotate-returns + 54 schema-builder)
 bun run test
 
 # Coverage report for all packages
@@ -87,13 +112,23 @@ bun run lint
 ```
 npm-packages-monorepo/
 ├── packages/
+│   ├── schema-builder/      # @vijayhardaha/schema-builder
+│   │   ├── src/
+│   │   │   ├── index.ts      # Core entry (re-exports schemas, constants, utils)
+│   │   │   ├── react.tsx     # React entry (exports JsonLd component)
+│   │   │   ├── components/   # JsonLd.tsx
+│   │   │   ├── schemas/      # personSchema, webSiteSchema, breadcrumbSchema, etc.
+│   │   │   ├── constants/    # CREATOR constant
+│   │   │   ├── utils/        # merge, url, schema utilities
+│   │   │   └── __tests__/    # 54 tests (100% line coverage)
+│   │   └── ...
 │   ├── annotate-returns/     # @vijayhardaha/annotate-returns
 │   │   ├── src/
 │   │   │   ├── index.ts      # Core library: annotate() + 20+ helpers
 │   │   │   ├── bin/cli.ts    # CLI entry point (Commander)
 │   │   │   ├── formatters.ts # Output formatting (JSON, verbose, quiet, dry-run)
 │   │   │   ├── types.ts      # TypeScript interfaces
-│   │   │   └── __tests__/    # 36 tests (100% line coverage)
+│   │   │   └── __tests__/    # 37 tests (100% line coverage)
 │   │   └── ...
 │   └── indexnow/             # @vijayhardaha/next-indexnow
 │       ├── src/
@@ -102,7 +137,7 @@ npm-packages-monorepo/
 │       │   ├── utils.ts      # Validation & helpers
 │       │   ├── constants.ts  # Shared constants
 │       │   ├── types.ts      # TypeScript interfaces
-│       │   └── __tests__/    # 56 tests (100% line coverage)
+│       │   └── __tests__/    # 57 tests (100% line coverage)
 │       └── ...
 ├── package.json              # Workspace root
 └── README.md                 # This file
@@ -138,6 +173,10 @@ npm-packages-monorepo/
 ## Releasing a Package
 
 ```bash
+# For schema-builder
+cd packages/schema-builder
+bun run release
+
 # For annotate-returns
 cd packages/annotate-returns
 bun run release
@@ -147,7 +186,7 @@ cd packages/indexnow
 bun run release
 ```
 
-Each package uses its own `.release-it.json` with package-scoped tags (e.g., `annotate-returns@1.0.1`, `next-indexnow@0.0.1`).
+Each package uses its own `.release-it.json` with package-scoped tags (e.g., `schema-builder@1.1.0`, `annotate-returns@1.1.2`, `next-indexnow@1.0.0`).
 
 ## Adding a New Package
 
