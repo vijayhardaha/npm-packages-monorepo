@@ -1,0 +1,85 @@
+{
+  "name": "@vijayhardaha/schema-builder",
+  "version": "1.0.6",
+  "description": "Reusable Schema.org structured data utilities, types, and React components",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "tsc": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write --log-level error .",
+    "format:check": "prettier --check .",
+    "release": "release-it",
+    "release:dry": "release-it --dry-run",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./react": {
+      "import": "./src/react.tsx",
+      "types": "./src/react.tsx"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "schema.org",
+    "json-ld",
+    "seo",
+    "structured-data",
+    "nextjs",
+    "react",
+    "typescript",
+    "schema-builder"
+  ],
+  "author": {
+    "name": "Vijay Hardaha",
+    "url": "https://github.com/vijayhardaha"
+  },
+  "homepage": "https://github.com/vijayhardaha/npm-packages-monorepo/tree/master/packages/schema-builder#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vijayhardaha/npm-packages-monorepo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vijayhardaha/npm-packages-monorepo/issues"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.15",
+    "jsdom": "^29.1.1",
+    "schema-dts": "^2.0.0",
+    "vite-plugin-dts": "^5.0.1"
+  },
+  "peerDependencies": {
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": false
+    },
+    "react-dom": {
+      "optional": true
+    }
+  }
+}
