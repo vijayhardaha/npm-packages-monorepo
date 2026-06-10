@@ -38,7 +38,7 @@
     "@prettier/plugin-xml": "^3.4.2",
     "@typescript-eslint/eslint-plugin": "^8.61.0",
     "@typescript-eslint/parser": "^8.61.0",
-    "@vijayhardaha/dev-config": "^2.1.0",
+    "@vijayhardaha/dev-config": "^2.1.1",
     "@vitest/coverage-v8": "^4.1.8",
     "eslint": "^10.4.1",
     "eslint-config-prettier": "^10.1.8",
