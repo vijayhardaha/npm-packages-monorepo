@@ -19,8 +19,9 @@ bun run tsc       # type-check all packages
 
 ```
 packages/
+  schema-builder/      → @vijayhardaha/schema-builder (library — Schema.org utilities & React components)
   annotate-returns/    → @vijayhardaha/annotate-returns (CLI + library)
-  indexnow/            → @vijayhardaha/indexnow (coming soon)
+  indexnow/            → @vijayhardaha/next-indexnow (CLI)
 AGENTS.md              → this file — monorepo overview
 ```
 
