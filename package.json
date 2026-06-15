@@ -39,8 +39,8 @@
     "@typescript-eslint/eslint-plugin": "^8.61.0",
     "@typescript-eslint/parser": "^8.61.0",
     "@vijayhardaha/dev-config": "^2.1.1",
-    "@vitest/coverage-v8": "^4.1.8",
-    "eslint": "^10.4.1",
+    "@vitest/coverage-v8": "^4.1.9",
+    "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-import-x": "^4.16.2",
@@ -53,6 +53,6 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.0",
     "vite": "^8.0.16",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.9"
   }
 }
