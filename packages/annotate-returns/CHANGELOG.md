@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] — 2026-06-17
+
+### Changed
+
+- **Replaced `buildExcludedSet` with `matchesExclude`**: Exclude patterns are now checked via path-based matching (exact, directory prefix, simple glob) instead of loading excluded files into ts-morph. Eliminates unnecessary file parsing and improves performance.
+
+- **Consolidated function collection in `processSourceFile`**: Switched from overlapping `getFunctions()` + `getDescendantsOfKind(FunctionDeclaration)` to a single `getDescendantsOfKind` call filtered by `getBody()`. Stops overload signatures from being reported as false positives and removes redundant iteration.
+
 ## [1.1.2] — 2026-06-08
 
 ### Added
