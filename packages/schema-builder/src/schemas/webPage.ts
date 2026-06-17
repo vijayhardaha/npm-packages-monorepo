@@ -57,12 +57,7 @@ function buildWebPageSchema(options: WebPageOptions, overrides?: Partial<WebPage
     schema.breadcrumb = { '@id': breadcrumbId };
   }
 
-  const result = mergeWithType(
-    schema as unknown as Record<string, unknown>,
-    overrides as Record<string, unknown>
-  ) as unknown as WebPage;
-
-  return result;
+  return mergeWithType(schema, overrides);
 }
 
 /**
