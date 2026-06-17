@@ -193,19 +193,36 @@ function validateNoJsFiles(sourceFiles: SourceFile[]): void {
 }
 
 /**
- * Build a set of file paths that match the exclude patterns.
+ * Check if a file path matches an exclude pattern (single file, directory, or simple glob).
  *
- * @param {Project}  project - Initialized ts-morph Project instance.
- * @param {string[]} exclude - Exclude glob patterns.
+ * @param {string} filePath - Absolute path of the source file.
+ * @param {string} pattern  - Exclude pattern to test against.
  *
- * @returns {Set<string>} Set of absolute file paths to exclude.
+ * @returns {boolean} True if the file matches the exclude pattern.
  */
-function buildExcludedSet(project: Project, exclude: string[]): Set<string> {
-  const excludedSet = new Set<string>();
-  for (const pattern of exclude) {
-    project.addSourceFilesAtPaths(pattern).forEach((sf) => excludedSet.add(sf.getFilePath().toString()));
+function matchesExclude(filePath: string, pattern: string): boolean {
+  const resolved = resolve(pattern);
+
+  // Exact match (single file)
+  if (filePath === resolved) return true;
+
+  // Non-glob directory match
+  if (!resolved.includes('*') && !resolved.includes('?')) {
+    return filePath.startsWith(resolved + '/');
   }
-  return excludedSet;
+
+  // Glob-to-regex conversion
+  const regexStr = resolved
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*\*/g, '.*')
+    .replace(/\*/g, '[^/]*')
+    .replace(/\?/g, '.');
+
+  try {
+    return new RegExp(`^${regexStr}$`).test(filePath);
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -282,18 +299,18 @@ function findGitignorePatterns(include: string[]): string[] {
  *
  * @param {SourceFile[]} sourceFiles      - Files to filter.
  * @param {string[]}     gitignorePatterns - Patterns parsed from .gitignore.
- * @param {Set<string>}  excludedSet      - Explicitly excluded file paths.
+ * @param {string[]}     exclude           - Exclude glob patterns.
  *
  * @returns {SourceFile[]} Filtered list of source files.
  */
-function filterSourceFiles(
-  sourceFiles: SourceFile[],
-  gitignorePatterns: string[],
-  excludedSet: Set<string>
-): SourceFile[] {
+function filterSourceFiles(sourceFiles: SourceFile[], gitignorePatterns: string[], exclude: string[]): SourceFile[] {
   return sourceFiles.filter((sf) => {
     const fp = sf.getFilePath().toString();
-    return !isIgnored(fp, gitignorePatterns) && !excludedSet.has(fp);
+    if (isIgnored(fp, gitignorePatterns)) return false;
+    for (const pattern of exclude) {
+      if (matchesExclude(fp, pattern)) return false;
+    }
+    return true;
   });
 }
 
@@ -315,10 +332,9 @@ function loadSourceFiles(project: Project, include: string[], exclude: string[])
   const allSourceFiles = project.getSourceFiles();
   validateNoJsFiles(allSourceFiles);
 
-  const excludedSet = buildExcludedSet(project, exclude);
   const gitignorePatterns = findGitignorePatterns(include);
 
-  return filterSourceFiles(allSourceFiles, gitignorePatterns, excludedSet);
+  return filterSourceFiles(allSourceFiles, gitignorePatterns, exclude);
 }
 
 /**
@@ -428,10 +444,7 @@ async function processSourceFile(sourceFile: SourceFile, dryRun: boolean, backup
   const result: FileResult = { filePath, updated: false, failed: false, annotations: [] };
 
   try {
-    const functions = [
-      ...sourceFile.getFunctions(),
-      ...sourceFile.getDescendantsOfKind(SyntaxKind.FunctionDeclaration),
-    ];
+    const functions = sourceFile.getDescendantsOfKind(SyntaxKind.FunctionDeclaration).filter((fn) => fn.getBody());
 
     const fileAnnotations = processFunctions(functions);
 
