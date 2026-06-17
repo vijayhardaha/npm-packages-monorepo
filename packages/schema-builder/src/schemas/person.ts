@@ -89,8 +89,5 @@ export function personSchema(options: PersonOptions, overrides?: Partial<Person>
   const personId = buildId(rootUrl, 'person');
   const schema = buildPersonSchema(rootUrl, personId);
 
-  return mergeWithType(
-    schema as unknown as Record<string, unknown>,
-    overrides as Record<string, unknown> | undefined
-  ) as unknown as Person;
+  return mergeWithType(schema, overrides);
 }
