@@ -1,7 +1,7 @@
 {
   "$schema": "https://unpkg.com/release-it@19.2.4/schema/release-it.json",
   "git": {
-    "requireCleanWorkingDir": false,
+    "requireCleanWorkingDir": true,
     "commitMessage": "build(release): bump annotate-returns to ${version}",
     "tagAnnotation": "annotate-returns@${version}",
     "tagName": "annotate-returns@${version}"
