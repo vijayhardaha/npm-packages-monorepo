@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-06-17
+
+### Changed
+
+- **`mergeWithType` generics enhanced**: Return type widened to `T & Record<string, unknown>` for flexible property access. `overrides` parameter accepts `unknown`, removing the need for caller-side casts with schema-dts types.
+
+### Fixed
+
+- **`buildId` URL validation**: Now validates the input URL via `validateUrl()` instead of using `cleanUrl()` without validation.
+
+- **`toGraph` input validation**: Now throws if no entities are provided or any entity is not a plain object.
+
 ## [1.1.1] - 2026-06-10
 
 ### Fixed
