@@ -51,19 +51,21 @@ export function deepMerge(base: SchemaEntity, overrides: SchemaEntity | undefine
 /**
  * Merges overrides into a schema while preserving the original `@type` value.
  *
- * @param {SchemaEntity} schema - The base schema entity containing the `@type` to preserve.
- * @param {SchemaEntity} [overrides] - Optional override properties to merge.
+ * @template T - The schema entity type (inferred from the input schema).
  *
- * @returns {SchemaEntity} A merged schema entity with the original `@type` intact.
+ * @param {T} schema - The base schema entity containing the `@type` to preserve.
+ * @param {unknown} [overrides] - Optional override properties to merge.
+ *
+ * @returns {T & Record<string, unknown>} A merged schema entity with the original `@type` intact.
  */
-export function mergeWithType(schema: SchemaEntity, overrides?: SchemaEntity): SchemaEntity {
-  const merged = deepMerge(schema, overrides);
+export function mergeWithType<T>(schema: T, overrides?: unknown): T & Record<string, unknown> {
+  const merged = deepMerge(schema as unknown as SchemaEntity, overrides as SchemaEntity | undefined) as unknown as T
+    & Record<string, unknown>;
 
-  // Restore the original @type to prevent overrides from changing the schema type.
-  const typeValue = schema['@type'];
+  const typeValue = (schema as unknown as SchemaEntity)['@type'];
 
   if (typeValue !== undefined) {
-    merged['@type'] = typeValue;
+    (merged as unknown as SchemaEntity)['@type'] = typeValue;
   }
 
   return merged;
