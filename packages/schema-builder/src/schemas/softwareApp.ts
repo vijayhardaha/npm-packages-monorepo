@@ -61,10 +61,5 @@ export function softwareAppSchema(
   if (options.requirements) schema.softwareRequirements = options.requirements;
   if (options.sourceCode) schema.isBasedOn = options.sourceCode;
 
-  const result = mergeWithType(
-    schema as unknown as Record<string, unknown>,
-    overrides as Record<string, unknown>
-  ) as unknown as SoftwareApplication;
-
-  return result;
+  return mergeWithType(schema, overrides);
 }
