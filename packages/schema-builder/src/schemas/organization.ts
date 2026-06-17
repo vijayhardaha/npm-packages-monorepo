@@ -29,10 +29,5 @@ export function organizationSchema(options: OrganizationOptions, overrides?: Par
     foundingDate: new Date().getFullYear().toString(),
   };
 
-  const result = mergeWithType(
-    schema as unknown as Record<string, unknown>,
-    overrides as Record<string, unknown>
-  ) as unknown as Organization;
-
-  return result;
+  return mergeWithType(schema, overrides);
 }
