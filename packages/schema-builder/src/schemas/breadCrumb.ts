@@ -32,7 +32,5 @@ export function breadcrumbSchema(options: BreadcrumbOptions, overrides?: Partial
     }),
   };
 
-  const result = mergeWithType(schema as unknown as Partial<BreadcrumbList>, overrides) as unknown as BreadcrumbList;
-
-  return result;
+  return mergeWithType(schema, overrides);
 }
