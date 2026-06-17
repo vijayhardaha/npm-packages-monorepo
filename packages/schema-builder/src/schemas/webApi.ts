@@ -35,10 +35,5 @@ export function webApiSchema(options: WebApiOptions, overrides?: Partial<WebAPI>
     serviceOutput: 'JSON',
   };
 
-  const result = mergeWithType(
-    schema as unknown as Record<string, unknown>,
-    overrides as Record<string, unknown>
-  ) as unknown as WebAPI;
-
-  return result;
+  return mergeWithType(schema, overrides);
 }
