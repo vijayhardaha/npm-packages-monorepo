@@ -39,10 +39,9 @@ describe('toGraph', () => {
     expect(result).toEqual({ '@context': 'https://schema.org', '@graph': [person, website] });
   });
 
-  // it: should handle empty entities
-  it('should handle empty entities', () => {
-    const result = toGraph();
-    // expect: returns empty @graph when no entities provided
-    expect(result).toEqual({ '@context': 'https://schema.org', '@graph': [] });
+  // it: should throw for empty entities
+  it('should throw for empty entities', () => {
+    // expect: throws when no entities provided
+    expect(() => toGraph()).toThrow('At least one schema entity is required');
   });
 });
