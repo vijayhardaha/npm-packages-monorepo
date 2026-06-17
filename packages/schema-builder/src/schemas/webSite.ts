@@ -32,10 +32,5 @@ export function webSiteSchema(options: WebSiteOptions, overrides?: Partial<WebSi
     publisher: { '@id': orgId },
   };
 
-  const result = mergeWithType(
-    schema as unknown as Record<string, unknown>,
-    overrides as Record<string, unknown>
-  ) as unknown as WebSite;
-
-  return result;
+  return mergeWithType(schema, overrides);
 }
