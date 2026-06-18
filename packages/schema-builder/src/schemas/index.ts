@@ -5,3 +5,5 @@ export { webPageSchema, aboutPageSchema, contactPageSchema, type WebPageOptions 
 export { webApiSchema, type WebApiOptions } from './webApi';
 export { softwareAppSchema, type SoftwareAppOptions } from './softwareApp';
 export { breadcrumbSchema, type BreadcrumbOptions, type BreadcrumbItem } from './breadCrumb';
+export { collectionPageSchema, type CollectionPageOptions } from './collectionPage';
+export { blogPostingSchema, type BlogPostingOptions } from './blogPosting';
