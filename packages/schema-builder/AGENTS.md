@@ -27,6 +27,8 @@ src/
 │   └── index.ts
 ├── schemas/
 │   ├── breadCrumb.ts            # + breadCrumb.test.ts
+│   ├── blogPosting.ts           # + blogPosting.test.ts
+│   ├── collectionPage.ts        # + collectionPage.test.ts
 │   ├── organization.ts          # + organization.test.ts
 │   ├── person.ts                # + person.test.ts
 │   ├── softwareApp.ts           # + softwareApp.test.ts
@@ -74,7 +76,7 @@ export function personSchema(options: PersonOptions, overrides?: Partial<Person>
     // ... build schema using schema-dts types
   };
 
-  return mergeWithType(schema, overrides) as Person;
+  return mergeWithType(schema, overrides);
 }
 ```
 
@@ -117,18 +119,20 @@ All inputs are validated:
 
 The package provides the following schema types:
 
-| Function             | Schema.org Type     |
-| -------------------- | ------------------- |
-| `personSchema`       | Person              |
-| `organizationSchema` | Organization        |
-| `webSiteSchema`      | WebSite             |
-| `webpageSchema`      | WebPage             |
-| `aboutPageSchema`    | AboutPage           |
-| `contactPageSchema`  | ContactPage         |
-| `webAppSchema`       | WebApplication      |
-| `webApiSchema`       | WebAPI              |
-| `softwareAppSchema`  | SoftwareApplication |
-| `breadcrumbSchema`   | BreadcrumbList      |
+| Function               | Schema.org Type     |
+| ---------------------- | ------------------- |
+| `personSchema`         | Person              |
+| `organizationSchema`   | Organization        |
+| `webSiteSchema`        | WebSite             |
+| `webpageSchema`        | WebPage             |
+| `aboutPageSchema`      | AboutPage           |
+| `contactPageSchema`    | ContactPage         |
+| `collectionPageSchema` | CollectionPage      |
+| `blogPostingSchema`    | BlogPosting         |
+| `webAppSchema`         | WebApplication      |
+| `webApiSchema`         | WebAPI              |
+| `softwareAppSchema`    | SoftwareApplication |
+| `breadcrumbSchema`     | BreadcrumbList      |
 
 ## Utilities
 
