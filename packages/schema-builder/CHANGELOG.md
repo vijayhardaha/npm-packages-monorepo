@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-06-18
+
+### Added
+
+- **`collectionPageSchema` function**: New Schema.org CollectionPage builder for collection and listing pages with site/publisher/author references and copyright metadata.
+
+- **`blogPostingSchema` function**: New Schema.org BlogPosting builder for blog posts and articles with optional author name, publisher reference, and main entity linking.
+
+### Tests
+
+- Comprehensive test coverage for `collectionPageSchema` (6 tests)
+- Comprehensive test coverage for `blogPostingSchema` (7 tests)
+
 ## [1.1.2] - 2026-06-17
 
 ### Changed
