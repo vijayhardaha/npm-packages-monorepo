@@ -20,7 +20,7 @@ Library providing reusable Schema.org structured data utilities, types, and Reac
 **Key features:**
 
 - Full TypeScript support with strict mode and type-safe Schema.org types via `schema-dts`
-- Schema functions for Person, Organization, WebSite, WebPage, WebAPI, SoftwareApplication, and BreadcrumbList
+- Schema functions for Person, Organization, WebSite, WebPage, CollectionPage, BlogPosting, WebAPI, SoftwareApplication, and BreadcrumbList
 - React `JsonLd` component for rendering JSON-LD script tags with XSS protection
 - Utility functions: `deepMerge`, `mergeWithType`, `toGraph`, `buildId`, `validateUrl`, `resolveUrl`, `cleanUrl`
 - Multi-entry build (core + react) via Vite with `vite-plugin-dts`
@@ -94,7 +94,7 @@ bun install
 # Build all packages
 bun run build
 
-# Run all tests (57 indexnow + 37 annotate-returns + 54 schema-builder)
+# Run all tests (57 indexnow + 37 annotate-returns + 67 schema-builder)
 bun run test
 
 # Coverage report for all packages
@@ -117,10 +117,10 @@ npm-packages-monorepo/
 │   │   │   ├── index.ts      # Core entry (re-exports schemas, constants, utils)
 │   │   │   ├── react.tsx     # React entry (exports JsonLd component)
 │   │   │   ├── components/   # JsonLd.tsx
-│   │   │   ├── schemas/      # personSchema, webSiteSchema, breadcrumbSchema, etc.
+│   │   │   ├── schemas/      # personSchema, webSiteSchema, collectionPageSchema, blogPostingSchema, etc.
 │   │   │   ├── constants/    # CREATOR constant
 │   │   │   ├── utils/        # merge, url, schema utilities
-│   │   │   └── __tests__/    # 54 tests (100% line coverage)
+│   │   │   └── __tests__/    # 67 tests (100% line coverage)
 │   │   └── ...
 │   ├── annotate-returns/     # @vijayhardaha/annotate-returns
 │   │   ├── src/
