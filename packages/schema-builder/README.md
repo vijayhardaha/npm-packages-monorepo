@@ -56,17 +56,19 @@ export default function MyPage() {
 
 ### Schema Functions
 
-| Function             | Schema.org Type     | Description                        |
-| -------------------- | ------------------- | ---------------------------------- |
-| `personSchema`       | Person              | Person entity with creator profile |
-| `organizationSchema` | Organization        | Organization linked to creator     |
-| `webSiteSchema`      | WebSite             | Website with search action         |
-| `webpageSchema`      | WebPage             | General web page                   |
-| `aboutPageSchema`    | AboutPage           | About page                         |
-| `contactPageSchema`  | ContactPage         | Contact page                       |
-| `webApiSchema`       | WebAPI              | WebAPI with pricing and platform   |
-| `softwareAppSchema`  | SoftwareApplication | Software application with pricing  |
-| `breadcrumbSchema`   | BreadcrumbList      | Navigation breadcrumb list         |
+| Function               | Schema.org Type     | Description                        |
+| ---------------------- | ------------------- | ---------------------------------- |
+| `personSchema`         | Person              | Person entity with creator profile |
+| `organizationSchema`   | Organization        | Organization linked to creator     |
+| `webSiteSchema`        | WebSite             | Website with search action         |
+| `webpageSchema`        | WebPage             | General web page                   |
+| `aboutPageSchema`      | AboutPage           | About page                         |
+| `contactPageSchema`    | ContactPage         | Contact page                       |
+| `collectionPageSchema` | CollectionPage      | Collection or listing page         |
+| `blogPostingSchema`    | BlogPosting         | Blog post or article               |
+| `webApiSchema`         | WebAPI              | WebAPI with pricing and platform   |
+| `softwareAppSchema`    | SoftwareApplication | Software application with pricing  |
+| `breadcrumbSchema`     | BreadcrumbList      | Navigation breadcrumb list         |
 
 ### Utilities
 
