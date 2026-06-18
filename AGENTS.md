@@ -11,7 +11,7 @@ git clone <repo>
 cd npm-packages-monorepo
 bun install
 bun run build     # builds all packages
-bun run test      # runs all tests
+bun run test      # runs all tests (161 total: 67 schema-builder + 37 annotate-returns + 57 indexnow)
 bun run tsc       # type-check all packages
 ```
 
