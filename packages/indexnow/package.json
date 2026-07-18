@@ -1,6 +1,6 @@
 {
   "name": "@vijayhardaha/next-indexnow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI tool to submit Next.js sitemaps to the IndexNow API for faster search engine indexing",
   "scripts": {
     "dev": "vite",
