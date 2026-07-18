@@ -335,19 +335,19 @@ describe('ensureKeyFile', () => {
 // ---------------------------------------------------------------------------
 
 describe('resolveSitemapPath', () => {
-  it('should default to public/sitemap-0.xml', () => {
+  it('should default to public/sitemap.xml', () => {
     const path = resolveSitemapPath();
-    expect(path).toBe(resolve(tmpDir, 'public', 'sitemap-0.xml'));
+    expect(path).toBe(resolve(tmpDir, 'public', 'sitemap.xml'));
   });
 
   it('should accept custom outDir', () => {
     const path = resolveSitemapPath('./custom');
-    expect(path).toBe(resolve(tmpDir, 'custom', 'sitemap-0.xml'));
+    expect(path).toBe(resolve(tmpDir, 'custom', 'sitemap.xml'));
   });
 
   it('should accept custom sitemap filename', () => {
-    const path = resolveSitemapPath('public', 'sitemap.xml');
-    expect(path).toBe(resolve(tmpDir, 'public', 'sitemap.xml'));
+    const path = resolveSitemapPath('public', 'sitemap-0.xml');
+    expect(path).toBe(resolve(tmpDir, 'public', 'sitemap-0.xml'));
   });
 });
 
@@ -372,7 +372,7 @@ describe('readSitemap', () => {
   ].join('\n');
 
   it('should parse URLs from a valid sitemap', async () => {
-    const sitemapPath = writeFixture('public/sitemap-0.xml', VALID_SITEMAP);
+    const sitemapPath = writeFixture('public/sitemap.xml', VALID_SITEMAP);
     const result = await readSitemap(sitemapPath);
 
     expect(result.valid).toBe(true);
@@ -403,6 +403,119 @@ describe('readSitemap', () => {
     const result = await readSitemap(sitemapPath);
     expect(result.valid).toBe(false);
     expect(result.error).toContain('No URLs found');
+  });
+
+  it('should parse sitemap index and fetch sub-sitemaps', async () => {
+    const sitemapIndex = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      '  <sitemap>',
+      '    <loc>https://example.com/sitemap-0.xml</loc>',
+      '  </sitemap>',
+      '  <sitemap>',
+      '    <loc>https://example.com/sitemap-1.xml</loc>',
+      '  </sitemap>',
+      '</sitemapindex>',
+    ].join('\n');
+
+    const sitemap0 = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      '  <url><loc>https://example.com/</loc></url>',
+      '  <url><loc>https://example.com/about</loc></url>',
+      '</urlset>',
+    ].join('\n');
+
+    const sitemap1 = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      '  <url><loc>https://example.com/contact</loc></url>',
+      '</urlset>',
+    ].join('\n');
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+      const urlStr = String(url);
+      if (urlStr.includes('sitemap-0.xml')) {
+        return { ok: true, text: async () => sitemap0 } as Response;
+      }
+      if (urlStr.includes('sitemap-1.xml')) {
+        return { ok: true, text: async () => sitemap1 } as Response;
+      }
+      return { ok: false, text: async () => 'Not found' } as Response;
+    });
+
+    const sitemapPath = writeFixture('public/sitemap.xml', sitemapIndex);
+    const result = await readSitemap(sitemapPath);
+
+    expect(result.valid).toBe(true);
+    expect(result.urls).toEqual(['https://example.com/', 'https://example.com/about', 'https://example.com/contact']);
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('should fail when sitemap index has no sub-sitemap URLs', async () => {
+    const emptyIndex = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      '</sitemapindex>',
+    ].join('\n');
+
+    const sitemapPath = writeFixture('public/sitemap.xml', emptyIndex);
+    const result = await readSitemap(sitemapPath);
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('No sub-sitemap URLs found');
+  });
+
+  it('should fail when all sub-sitemaps fail to fetch', async () => {
+    const sitemapIndex = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      '  <sitemap>',
+      '    <loc>https://example.com/sitemap-0.xml</loc>',
+      '  </sitemap>',
+      '</sitemapindex>',
+    ].join('\n');
+
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network error'));
+
+    const sitemapPath = writeFixture('public/sitemap.xml', sitemapIndex);
+    const result = await readSitemap(sitemapPath);
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('No URLs found in any of the sub-sitemaps');
+  });
+
+  it('should skip failed sub-sitemaps and collect URLs from successful ones', async () => {
+    const sitemapIndex = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      '  <sitemap>',
+      '    <loc>https://example.com/sitemap-0.xml</loc>',
+      '  </sitemap>',
+      '  <sitemap>',
+      '    <loc>https://example.com/sitemap-1.xml</loc>',
+      '  </sitemap>',
+      '</sitemapindex>',
+    ].join('\n');
+
+    const sitemap0 = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      '  <url><loc>https://example.com/</loc></url>',
+      '</urlset>',
+    ].join('\n');
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+      const urlStr = String(url);
+      if (urlStr.includes('sitemap-0.xml')) {
+        return { ok: true, text: async () => sitemap0 } as Response;
+      }
+      throw new Error('Network error');
+    });
+
+    const sitemapPath = writeFixture('public/sitemap.xml', sitemapIndex);
+    const result = await readSitemap(sitemapPath);
+
+    expect(result.valid).toBe(true);
+    expect(result.urls).toEqual(['https://example.com/']);
   });
 });
 

@@ -47,7 +47,7 @@ beforeEach(() => {
   // Valid sitemap — ensure public/ dir exists
   mkdirSync(join(tmpDir, 'public'), { recursive: true });
   writeFileSync(
-    join(tmpDir, 'public', 'sitemap-0.xml'),
+    join(tmpDir, 'public', 'sitemap.xml'),
     [
       '<?xml version="1.0" encoding="UTF-8"?>',
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',

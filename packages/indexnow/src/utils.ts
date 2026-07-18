@@ -228,7 +228,30 @@ export function resolveSitemapPath(outDir?: string, sitemapFile?: string): strin
 }
 
 /**
+ * Fetch XML content from a remote sitemap URL.
+ *
+ * @param {string} url - The remote sitemap URL to fetch.
+ *
+ * @returns {Promise<string>} The XML content of the sitemap.
+ *
+ * @throws {Error} If the fetch fails or the response is not OK.
+ */
+async function fetchSitemapXml(url: string): Promise<string> {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch sitemap: ${url} (${response.status})`);
+  }
+
+  return response.text();
+}
+
+/**
  * Read and parse a sitemap XML file, extracting all `<loc>` URLs.
+ *
+ * Supports both regular sitemaps (`<urlset>`) and sitemap index files
+ * (`<sitemapindex>`). For sitemap index files, each referenced sub-sitemap
+ * is fetched and parsed to collect all URLs.
  *
  * @param {string} sitemapPath - Absolute path to the sitemap XML file.
  *
@@ -243,7 +266,7 @@ export async function readSitemap(sitemapPath: string): Promise<ValidationResult
     return { valid: false, error: `Sitemap file not found: ${sitemapPath}` };
   }
 
-  let parsed: { urlset?: { url?: Array<{ loc?: string[] }> } };
+  let parsed: { urlset?: { url?: Array<{ loc?: string[] }> }; sitemapindex?: { sitemap?: Array<{ loc?: string[] }> } };
 
   try {
     parsed = await xml2js.parseStringPromise(content);
@@ -251,6 +274,41 @@ export async function readSitemap(sitemapPath: string): Promise<ValidationResult
     return { valid: false, error: 'Failed to parse sitemap XML. Ensure the file is valid XML.' };
   }
 
+  // Check if this is a sitemap index file
+  if (parsed.sitemapindex) {
+    const subSitemapUrls = (parsed.sitemapindex.sitemap ?? [])
+      .map((entry) => entry.loc?.[0])
+      .filter(Boolean) as string[];
+
+    if (subSitemapUrls.length === 0) {
+      return { valid: false, error: 'No sub-sitemap URLs found in the sitemap index.' };
+    }
+
+    const allUrls: string[] = [];
+
+    for (const subSitemapUrl of subSitemapUrls) {
+      try {
+        const subContent = await fetchSitemapXml(subSitemapUrl);
+        const subParsed: { urlset?: { url?: Array<{ loc?: string[] }> } } = await xml2js.parseStringPromise(subContent);
+
+        const urls = subParsed.urlset?.url?.map((entry) => entry.loc?.[0]).filter(Boolean) as string[] | undefined;
+
+        if (urls && urls.length > 0) {
+          allUrls.push(...urls);
+        }
+      } catch {
+        // Skip failed sub-sitemaps silently
+      }
+    }
+
+    if (allUrls.length === 0) {
+      return { valid: false, error: 'No URLs found in any of the sub-sitemaps.' };
+    }
+
+    return { valid: true, urls: allUrls };
+  }
+
+  // Regular sitemap
   const urls = parsed.urlset?.url?.map((entry) => entry.loc?.[0]).filter(Boolean) as string[] | undefined;
 
   if (!urls || urls.length === 0) {
