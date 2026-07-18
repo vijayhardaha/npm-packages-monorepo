@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] — 2026-07-18
+
+### Added
+
+- **Sitemap index support**: Now reads `sitemap.xml` (sitemap index) by default, fetches all referenced sub-sitemaps via HTTP, and collects all URLs before submission.
+- **Remote sub-sitemap fetching**: Added `fetchSitemapXml` helper for fetching remote sitemap XML files.
+- **Graceful sub-sitemap failures**: Failed sub-sitemaps are skipped silently; URLs from successful sub-sitemaps are still collected and submitted.
+
+### Changed
+
+- **Default sitemap file**: Changed from `sitemap-0.xml` to `sitemap.xml` (standard Next.js sitemap index convention).
+- **Updated tests**: Added 4 new tests covering sitemap index parsing, empty index, failed sub-sitemap fetching, and partial sub-sitemap failures.
+
 ## [1.0.0] — 2026-06-08
 
 ### Added
